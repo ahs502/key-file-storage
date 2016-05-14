@@ -1,0 +1,24 @@
+{
+  "name": "key-file-storage",
+  "version": "1.0.0",
+  "description": "Simple key-value Node.js storage directly on file system, maps each key to JSON contents of a file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahs502/key-file-storage"
+  },
+  "keywords": [
+    "key",
+    "value",
+    "file",
+    "fs",
+    "store",
+    "storage",
+    "json"
+  ],
+  "author": "Hessam A Shokravi <ahs502@gmail.com> (http://ahs502.ir)",
+  "license": "ISC"
+}
