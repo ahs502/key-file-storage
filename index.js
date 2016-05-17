@@ -68,39 +68,88 @@ function keyFileStorage(kvsPath) {
             return deferred.promise;
         };
 
+        storage.reset = function() {
+            var deferred = Q.defer();
+            fs.remove(kvsPath, function(err) {
+                if (err) {
+                    deferred.reject(err);
+                }
+                else {
+                    cache = {};
+                    deferred.resolve();
+                }
+            });
+            return deferred.promise;
+        };
+
     }
     else {
-        
+
         storage.save = function(key, value) {
             if (value === undefined) {
                 return storage.delete(key);
             }
             return Q.when(cache[key] = value);
         };
-        
+
         storage.load = function(key) {
             return Q.when((cache[key] === undefined) ? null : cache[key]);
         };
-        
+
         storage.delete = function(key) {
             return Q.fcall(function() {
                 delete cache[key];
             });
         };
-        
+
+        storage.reset = function() {
+            cache = {};
+            return Q.when();
+        };
+
     }
 
-    return storage;
+    // return storage;
+
+    function set(key, value, callbackErr /*(err)*/ ) {
+        return _callbackizePromise(storage.save(key, value), callbackErr);
+    }
+
+    function get(key, callbackErrValue /*(err, value)*/ ) {
+        return _callbackizePromise(storage.load(key), callbackErrValue);
+    }
+
+    function remove(key, callbackErr /*(err)*/ ) {
+        return _callbackizePromise(storage.remove(key), callbackErr);
+    }
+
+    function clear(callbackErr /*(err)*/ ) {
+        return _callbackizePromise(storage.reset(), callbackErr);
+    }
+
+    function _callbackizePromise(promise, callback) {
+        if (typeof callback === "function") {
+            return promise.then(function(data) {
+                callback(null, data);
+            }, function(err) {
+                callback(err);
+            });
+        }
+        else {
+            return promise;
+        }
+    }
+
+    return {
+        set: set,
+        get: get,
+        remove: remove,
+        clear: clear,
+    };
 
 }
 
-
-
-
-
-
-
-
+module.exports = keyFileStorage;
 
 // var kfs = keyFileStorage( /*'./my/db'*/ );
 
@@ -139,6 +188,3 @@ function keyFileStorage(kvsPath) {
 //     console.log('S, L gamma/datakeys/01 =',value)
 // })
 // },1000)
-
-
-module.exports = keyFileStorage;
