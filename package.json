@@ -20,5 +20,9 @@
     "json"
   ],
   "author": "Hessam A Shokravi <ahs502@gmail.com> (http://ahs502.ir)",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^0.30.0",
+    "q": "^1.4.1"
+  }
 }
