@@ -1,7 +1,22 @@
 # key-file-storage
-Simple key-value Node.js storage directly on file system, maps each key to JSON contents of a file.
 
-#### I'll soon make a detailed readme for this module, but for now I just show you some examples :
+#### Simple key-value Node.js storage directly on file system, maps each key to JSON contents of a file.
+
+No database and database overhead anymore, just plain file-system and simple files containing JSON data !
+It's great for simple applications with small data.
+
+--------------------
+
+## Installation
+
++ Installing package on Node.js :
+```sh
+$ npm install --save key-file-storage
+```
+
+-------------------
+
+## Initialization
 
 + Initializing key-file storage :
 ```javascript
@@ -14,7 +29,11 @@ var kfs = keyFileStorage('/path/to/storage/directory');
 var kfs = keyFileStorage();
 ```
 
-+ Setting a new value to a key :
+-------------------
+
+## Usage
+
++ Setting a new value to a key : (*Setting to* `undefined` *is equivalent to remove the key*)
 ```javascript
 var value = ... // Any JSON-able object
 
@@ -77,8 +96,21 @@ kfs.clear().then(function() {
 });
 ```
 
-NOTE: `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it.
+------------------
 
-NOTE: Each key will map to a separate file (*using the key itself as its relative path*) so there is no need to load all the database file for any key access. Also, keys can be relative paths, e.g: `data.json`, `/my/key/01` or `any/other/relative/path/to/a/file`.
+## Notes
 
-NOTE: There is a built-in implemented **cache**, so accessing a certain key once again won't require file-system level operations.
+- **NOTE 1 :** `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it.
+
+- **NOTE 2 :** Each key will map to a separate file (*using the key itself as its relative path*) so there is no need to load all the database file for any key access. Also, keys can be relative paths, e.g: `data.json`, `/my/key/01` or `any/other/relative/path/to/a/file`.
+
+- **NOTE 3 :** There is a built-in implemented **cache**, so accessing a certain key once again won't require file-system level operations.
+
+---------------
+
+## Contribute
+
+The code is very simple and straightforward. It would be nice if you had any suggestions or contribution on it or detected any bug or issue.
+
++ See the code on [GitHub.com](https://github.com/ahs502/key-file-storage)
++ Contact me by [my gmail address](ahs502@gmail.com)  *(Hessam A Shokravi)*
