@@ -5,16 +5,12 @@
 No database and database overhead anymore, just plain file-system and simple files containing JSON data !
 It's great for simple applications with small data.
 
---------------------
-
 ## Installation
 
 + Installing package on Node.js :
 ```sh
 $ npm install --save key-file-storage
 ```
-
--------------------
 
 ## Initialization
 
@@ -28,8 +24,6 @@ var kfs = keyFileStorage('/path/to/storage/directory');
 // To store values on memory (useful for test)
 var kfs = keyFileStorage();
 ```
-
--------------------
 
 ## Usage
 
@@ -96,7 +90,6 @@ kfs.clear().then(function() {
 });
 ```
 
-------------------
 
 ## Notes
 
@@ -106,7 +99,6 @@ kfs.clear().then(function() {
 
 - **NOTE 3 :** There is a built-in implemented **cache**, so accessing a certain key once again won't require file-system level operations.
 
----------------
 
 ## Contribute
 
