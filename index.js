@@ -120,7 +120,7 @@ function keyFileStorage(kvsPath) {
     }
 
     function remove(key, callbackErr /*(err)*/ ) {
-        return _callbackizePromise(storage.remove(key), callbackErr);
+        return _callbackizePromise(storage.delete(key), callbackErr);
     }
 
     function clear(callbackErr /*(err)*/ ) {
