@@ -2,8 +2,6 @@ var fs = require("fs-extra");
 var path = require("path");
 var Q = require("q");
 
-
-
 function keyFileStorage(kvsPath) {
 
     var storage = {},
@@ -142,11 +140,63 @@ function keyFileStorage(kvsPath) {
         }
     }
 
+    function setSync(key, value) {
+        if (value === undefined) {
+            return removeSync(key);
+        }
+        if (kvsPath) {
+            var file = path.join(kvsPath, key);
+            fs.outputJsonSync(file, value);
+        }
+        return cache[key] = value;
+    }
+
+    function getSync(key) {
+        if (cache[key] !== undefined) {
+            return cache[key];
+        }
+        if (kvsPath) {
+            var file = path.join(kvsPath, key);
+            try {
+                var stat = fs.statSync(file);
+                if (!stat || !stat.isFile()) {
+                    return cache[key] = null;
+                }
+                return cache[key] = fs.readJsonSync(file);
+            }
+            catch (err) {
+                return cache[key] = null;
+            }
+        }
+        return null;
+    }
+
+    function removeSync(key) {
+        if (kvsPath) {
+            var file = path.join(kvsPath, key);
+            fs.removeSync(file);
+        }
+        delete cache[key];
+        return;
+    }
+
+    function clearSync() {
+        if (kvsPath) {
+            fs.removeSync(kvsPath);
+        }
+        cache = {};
+        return;
+    }
+
     return {
         set: set,
         get: get,
         remove: remove,
         clear: clear,
+        setSync: setSync,
+        getSync: getSync,
+        removeSync: removeSync,
+        clearSync: clearSync,
     };
 
 }

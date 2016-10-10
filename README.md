@@ -42,6 +42,9 @@ kfs.set('key', value).then(function() {
 }, function(err) {
     // Failed.
 });
+
+// Synchronized form (It may fail by throwing some exception) :
+kfs.setSync('key', value);
 ```
 
 + Getting value of a key : (*Value of a not existing key will be* `null`)
@@ -58,6 +61,9 @@ kfs.get('key').then(function(value) {
 }, function(err) {
     // Failed.
 });
+
+// Synchronized form (It may fail by throwing some exception) :
+var value = kfs.getSync('key');
 ```
 
 + Removing a key-file pair :
@@ -73,6 +79,9 @@ kfs.remove('key').then(function() {
 }, function(err) {
     // Failed.
 });
+
+// Synchronized form (It may fail by throwing some exception) :
+kfs.removeSync('key');
 ```
 
 + Clearing anything in the database folder :
@@ -88,6 +97,9 @@ kfs.clear().then(function() {
 }, function(err) {
     // Failed.
 });
+
+// Synchronized form (It may fail by throwing some exception) :
+kfs.clearSync();
 ```
 
 
