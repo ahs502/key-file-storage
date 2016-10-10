@@ -53,7 +53,7 @@ kfs.get('key', function(err, value) {
 });
 
 // Promise form :
-kfs.set('key').then(function(value) {
+kfs.get('key').then(function(value) {
     // Done!
 }, function(err) {
     // Failed.

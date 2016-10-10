@@ -22,8 +22,8 @@ function keyFileStorage(kvsPath) {
                     deferred.reject(err);
                 }
                 else {
-                    deferred.resolve();
                     cache[key] = value;
+                    deferred.resolve();
                 }
             });
             return deferred.promise;
@@ -61,9 +61,13 @@ function keyFileStorage(kvsPath) {
             var file = path.join(kvsPath, key),
                 deferred = Q.defer();
             fs.remove(file, function(err) {
-                if (err) { /*TODO?*/ }
-                delete cache[key];
-                deferred.resolve();
+                if (err) {
+                    deferred.reject(err);
+                }
+                else {
+                    delete cache[key];
+                    deferred.resolve();
+                }
             });
             return deferred.promise;
         };
@@ -83,7 +87,7 @@ function keyFileStorage(kvsPath) {
         };
 
     }
-    else {
+    else /* if (!kvsPath) */ {
 
         storage.save = function(key, value) {
             if (value === undefined) {
@@ -109,7 +113,7 @@ function keyFileStorage(kvsPath) {
 
     }
 
-    // return storage;
+    // return storage; // for test purposes.
 
     function set(key, value, callbackErr /*(err)*/ ) {
         return _callbackizePromise(storage.save(key, value), callbackErr);
@@ -130,10 +134,8 @@ function keyFileStorage(kvsPath) {
     function _callbackizePromise(promise, callback) {
         if (typeof callback === "function") {
             return promise.then(function(data) {
-                callback(null, data);
-            }, function(err) {
-                callback(err);
-            });
+                callback(undefined, data);
+            }, callback);
         }
         else {
             return promise;
@@ -224,7 +226,7 @@ module.exports = keyFileStorage;
 // });
 
 // // Promise form :
-// kfs.set('key').then(function(value) {
+// kfs.g('key').then(function(value) {
 //     // Done!
 // }, function(err) {
 //     // Failed.
