@@ -132,7 +132,7 @@ function keyFileStorage(kvsPath) {
     function _callbackizePromise(promise, callback) {
         if (typeof callback === "function") {
             return promise.then(function(data) {
-                callback(undefined, data);
+                return callback(undefined, data);
             }, callback);
         }
         else {
