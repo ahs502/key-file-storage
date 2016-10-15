@@ -9,7 +9,7 @@ It's great for simple applications with small data.
 
 + Installing package on Node.js :
 ```sh
-$ npm install --save key-file-storage
+$ npm install key-file-storage
 ```
 
 ## Initialization
@@ -19,11 +19,22 @@ $ npm install --save key-file-storage
 var keyFileStorage = require("key-file-storage");
 
 // To store files on disk
+var kfs = keyFileStorage('/path/to/storage/directory', cacheConfig);
+
+// To store files on disk (using unlimited cache)
 var kfs = keyFileStorage('/path/to/storage/directory');
 
 // To store values on memory (useful for test)
 var kfs = keyFileStorage();
 ```
+
++ Cache configuration :
+
+`cacheConfig` can be on of the following values :
+
+1. `true` (_by default_) : Unlimited cache, anything will be cached on memory, good for small data volumes.
+2. `false` : No cache, read the files from disk every time, good when other applications can modify the files' contents at anytime.
+3. `n` (_An integer number_) : Limited cache, only the `n` latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
 
 ## Usage
 

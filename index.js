@@ -1,132 +1,45 @@
-var fs = require("fs-extra");
-var path = require("path");
-var Q = require("q");
+var createCache = require("./src/create-cache");
+var createStoragePromise = require("./src/create-storage-promise");
+var createStorageSync = require("./src/create-storage-sync");
 
-function keyFileStorage(kvsPath) {
+function keyFileStorage(kvsPath, cacheConfig) {
 
-    var storage = {},
-        cache = {};
+    (cacheConfig === undefined) && (cacheConfig = true);
 
-    if (kvsPath) {
+    var cache = createCache(cacheConfig),
+        storagePromise = createStoragePromise(kvsPath, cache),
+        storageSync = createStorageSync(kvsPath, cache);
 
-        storage.save = function(key, value) {
-            if (value === undefined) {
-                return storage.delete(key);
-            }
-            var file = path.join(kvsPath, key),
-                deferred = Q.defer();
-            fs.outputJson(file, value, function(err) {
-                if (err) {
-                    deferred.reject(err);
-                }
-                else {
-                    cache[key] = value;
-                    deferred.resolve();
-                }
-            });
-            return deferred.promise;
-        };
+    return {
 
-        storage.load = function(key) {
-            if (cache[key] !== undefined) {
-                return Q.when(cache[key]);
-            }
-            else {
-                var file = path.join(kvsPath, key),
-                    deferred = Q.defer();
-                fs.stat(file, function(err, stat) {
-                    if (err || !stat || !stat.isFile()) {
-                        cache[key] = null;
-                        deferred.resolve(null);
-                    }
-                    else {
-                        fs.readJson(file, function(err, value) {
-                            if (err) {
-                                deferred.reject(err);
-                            }
-                            else {
-                                cache[key] = value;
-                                deferred.resolve(value);
-                            }
-                        });
-                    }
-                });
-                return deferred.promise;
-            }
-        };
+        // Asynchronous API :
+        set: set,
+        get: get,
+        remove: remove,
+        clear: clear,
 
-        storage.delete = function(key) {
-            var file = path.join(kvsPath, key),
-                deferred = Q.defer();
-            fs.remove(file, function(err) {
-                if (err) {
-                    deferred.reject(err);
-                }
-                else {
-                    delete cache[key];
-                    deferred.resolve();
-                }
-            });
-            return deferred.promise;
-        };
+        // Synchronous API :
+        setSync: storageSync.set,
+        getSync: storageSync.get,
+        removeSync: storageSync.remove,
+        clearSync: storageSync.clear,
 
-        storage.reset = function() {
-            var deferred = Q.defer();
-            fs.remove(kvsPath, function(err) {
-                if (err) {
-                    deferred.reject(err);
-                }
-                else {
-                    cache = {};
-                    deferred.resolve();
-                }
-            });
-            return deferred.promise;
-        };
-
-    }
-    else /* if (!kvsPath) */ {
-
-        storage.save = function(key, value) {
-            if (value === undefined) {
-                return storage.delete(key);
-            }
-            return Q.when(cache[key] = value);
-        };
-
-        storage.load = function(key) {
-            return Q.when((cache[key] === undefined) ? null : cache[key]);
-        };
-
-        storage.delete = function(key) {
-            return Q.fcall(function() {
-                delete cache[key];
-            });
-        };
-
-        storage.reset = function() {
-            cache = {};
-            return Q.when();
-        };
-
-    }
-
-    // return storage; // for test purposes.
+    };
 
     function set(key, value, callbackErr /*(err)*/ ) {
-        return _callbackizePromise(storage.save(key, value), callbackErr);
+        return _callbackizePromise(storagePromise.set(key, value), callbackErr);
     }
 
     function get(key, callbackErrValue /*(err, value)*/ ) {
-        return _callbackizePromise(storage.load(key), callbackErrValue);
+        return _callbackizePromise(storagePromise.get(key), callbackErrValue);
     }
 
     function remove(key, callbackErr /*(err)*/ ) {
-        return _callbackizePromise(storage.remove(key), callbackErr);
+        return _callbackizePromise(storagePromise.remove(key), callbackErr);
     }
 
     function clear(callbackErr /*(err)*/ ) {
-        return _callbackizePromise(storage.reset(), callbackErr);
+        return _callbackizePromise(storagePromise.clear(), callbackErr);
     }
 
     function _callbackizePromise(promise, callback) {
@@ -140,168 +53,6 @@ function keyFileStorage(kvsPath) {
         }
     }
 
-    function setSync(key, value) {
-        if (value === undefined) {
-            return removeSync(key);
-        }
-        if (kvsPath) {
-            var file = path.join(kvsPath, key);
-            fs.outputJsonSync(file, value);
-        }
-        return cache[key] = value;
-    }
-
-    function getSync(key) {
-        if (cache[key] !== undefined) {
-            return cache[key];
-        }
-        if (kvsPath) {
-            var file = path.join(kvsPath, key);
-            try {
-                var stat = fs.statSync(file);
-                if (!stat || !stat.isFile()) {
-                    return cache[key] = null;
-                }
-                return cache[key] = fs.readJsonSync(file);
-            }
-            catch (err) {
-                return cache[key] = null;
-            }
-        }
-        return null;
-    }
-
-    function removeSync(key) {
-        if (kvsPath) {
-            var file = path.join(kvsPath, key);
-            fs.removeSync(file);
-        }
-        delete cache[key];
-        return;
-    }
-
-    function clearSync() {
-        if (kvsPath) {
-            fs.removeSync(kvsPath);
-        }
-        cache = {};
-        return;
-    }
-
-    return {
-        set: set,
-        get: get,
-        remove: remove,
-        clear: clear,
-        setSync: setSync,
-        getSync: getSync,
-        removeSync: removeSync,
-        clearSync: clearSync,
-    };
-
 }
 
 module.exports = keyFileStorage;
-
-// var kfs = keyFileStorage( /*'./my/db'*/ );
-
-// kfs.save('alpha', {
-//     x: 23,
-//     y: 'df'
-// }).then(() => {
-//     console.log('S alpha')
-//     kfs.load('alpha').then(value => {
-//         console.log('L alpha =', value)
-//         kfs.delete('alpha').then(() => {
-//             console.log('D alpha')
-//             kfs.load('beta').then(value => {
-//                 console.log('L beta =', value)
-//             })
-//         })
-//     })
-// })
-
-// kfs.save('gamma/datakeys/01', ['asd', 678, 'fgh'])
-//     .then(() => kfs.load('gamma/datakeys/01'))
-//     .then(value => {
-//         console.log('S, L gamma/datakeys/01 =', value)
-//     })
-//     .then(() => kfs.delete('gamma/datakeys/01'))
-//     .then(function() {
-//         console.log('D gamma/datakeys/01')
-//     })
-
-
-
-// setInterval(()=>{
-//     Q.when()
-// .then(()=>kfs.load('gamma/datakeys/01'))
-// .then(value=>{
-//     console.log('S, L gamma/datakeys/01 =',value)
-// })
-// },1000)
-
-
-
-
-
-
-
-// var keyFileStorage = require("key-file-storage");
-
-// // To store files on disk
-// var kfs = keyFileStorage('/path/to/storage/directory');
-
-// // To store files on memory (useful for test)
-// var kfs = keyFileStorage();
-
-// var value = ... // Any JSON-able object
-
-// // Callback form :
-// kfs.set('key', value, function(err) {
-//     if (err) { /*...*/ }
-// });
-
-// // Promise form :
-// kfs.set('key', value).then(function() {
-//     // Done!
-// }, function(err) {
-//     // Failed.
-// });
-
-// // Callback form :
-// kfs.get('key', function(err, value) {
-//     if (err) { /*...*/ }
-//     else { /* Do something with value ... */ }
-// });
-
-// // Promise form :
-// kfs.g('key').then(function(value) {
-//     // Done!
-// }, function(err) {
-//     // Failed.
-// });
-
-// // Callback form :
-// kfs.remove('key', function(err) {
-//     if (err) { /*...*/ }
-// });
-
-// // Promise form :
-// kfs.remove('key').then(function() {
-//     // Done!
-// }, function(err) {
-//     // Failed.
-// });
-
-// // Callback form :
-// kfs.clear(function(err) {
-//     if (err) { /*...*/ }
-// });
-
-// // Promise form :
-// kfs.clear().then(function() {
-//     // Done!
-// }, function(err) {
-//     // Failed.
-// });

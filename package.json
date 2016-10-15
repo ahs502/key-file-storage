@@ -1,10 +1,10 @@
 {
   "name": "key-file-storage",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Simple cached key-value Node.js storage directly on file system, maps each key to JSON contents of a file.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,8 @@
   "dependencies": {
     "fs-extra": "^0.30.0",
     "q": "^1.4.1"
+  },
+  "devDependencies": {
+    "lodash": "^4.16.4"
   }
 }
