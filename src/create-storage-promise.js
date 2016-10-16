@@ -5,7 +5,7 @@ module.exports = function createStoragePromise(kvsPath, cache) {
     if (typeof kvsPath === 'string') { // Store on disk.
         return createStoragePromiseDisk(kvsPath, cache);
     }
-    else /* if (typeof kvsPath !== 'string') */ {
+    else /* if (typeof kvsPath !== 'string') */ { // Store on memory.
         return createStoragePromiseMemory(kvsPath, cache);
     }
 };

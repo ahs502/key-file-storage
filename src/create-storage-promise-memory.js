@@ -1,5 +1,3 @@
-var Q = require("q");
-
 module.exports = function createStoragePromiseMemory(kvsPath, cache) {
 
     var memory = {};
@@ -15,21 +13,21 @@ module.exports = function createStoragePromiseMemory(kvsPath, cache) {
         if (value === undefined) {
             return remove(key);
         }
-        return Q.when(memory[key] = value);
+        return Promise.resolve(memory[key] = value);
     }
 
     function get(key) {
-        return Q.when((memory[key] === undefined) ? null : memory[key]);
+        return Promise.resolve((memory[key] === undefined) ? null : memory[key]);
     }
 
     function remove(key) {
         delete memory[key];
-        return Q.when(null);
+        return Promise.resolve(null);
     }
 
     function clear() {
         memory = {};
-        return Q.when();
+        return Promise.resolve();
     }
 
 };

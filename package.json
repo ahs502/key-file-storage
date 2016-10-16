@@ -22,8 +22,7 @@
   "author": "Hessam A Shokravi <ahs502@gmail.com> (http://ahs502.ir)",
   "license": "ISC",
   "dependencies": {
-    "fs-extra": "^0.30.0",
-    "q": "^1.4.1"
+    "fs-extra": "^0.30.0"
   },
   "devDependencies": {
     "lodash": "^4.16.4"

@@ -61,9 +61,19 @@ kfs.getSync('ccc');
 
 
 
-setTimeout(function() {
-    console.log(12345)
-},2000)
+// setTimeout(function() {
+//     console.log(12345)
+// },2000)
+
+
+// var sto=setTimeout;
+// (new Promise(function(res,rej){
+//     sto(function(){
+//         res(100)
+//     },1000)
+// })).then(function (x    ) {
+//     console.log(x)
+// });
 
 
 
