@@ -2,13 +2,13 @@ var createCache = require("./src/create-cache");
 var createStoragePromise = require("./src/create-storage-promise");
 var createStorageSync = require("./src/create-storage-sync");
 
-function keyFileStorage(kvsPath, cacheConfig) {
+function keyFileStorage(kfsPath, cacheConfig) {
 
-    (cacheConfig === undefined) && (cacheConfig = true);
+    (cacheConfig === undefined || typeof kfsPath !== 'string') && (cacheConfig = true); // Unlimited cache by default.
 
     var cache = createCache(cacheConfig),
-        storagePromise = createStoragePromise(kvsPath, cache),
-        storageSync = createStorageSync(kvsPath, cache);
+        storagePromise = createStoragePromise(kfsPath, cache),
+        storageSync = createStorageSync(kfsPath, cache);
 
     return {
 

@@ -1,6 +1,4 @@
-module.exports = function createStorageSyncMemory(kvsPath, cache) {
-
-    var fsMock = {};
+module.exports = function createStorageSyncMemory(kfsPath, cache) {
 
     return {
         set: set,
@@ -13,21 +11,19 @@ module.exports = function createStorageSyncMemory(kvsPath, cache) {
         if (value === undefined) {
             return remove(key);
         }
-        return fsMock[key] = value;
+        return cache.set(key, value);
     }
 
     function get(key) {
-        return (fsMock[key] === undefined) ? null : fsMock[key];
+        return (cache.get(key) === undefined) ? null : cache.get(key);
     }
 
     function remove(key) {
-        delete fsMock[key];
-        return null;
+        return cache.remove(key);
     }
 
     function clear() {
-        fsMock = {};
-        return;
+        return cache.clear();
     }
 
 };

@@ -1,6 +1,4 @@
-module.exports = function createStoragePromiseMemory(kvsPath, cache) {
-
-    var memory = {};
+module.exports = function createStoragePromiseMemory(kfsPath, cache) {
 
     return {
         set: set,
@@ -13,21 +11,19 @@ module.exports = function createStoragePromiseMemory(kvsPath, cache) {
         if (value === undefined) {
             return remove(key);
         }
-        return Promise.resolve(memory[key] = value);
+        return Promise.resolve(cache.set(key, value));
     }
 
     function get(key) {
-        return Promise.resolve((memory[key] === undefined) ? null : memory[key]);
+        return Promise.resolve((cache.get(key) === undefined) ? null : cache.get(key));
     }
 
     function remove(key) {
-        delete memory[key];
-        return Promise.resolve(null);
+        return Promise.resolve(cache.remove(key));
     }
 
     function clear() {
-        memory = {};
-        return Promise.resolve();
+        return Promise.resolve(cache.clear());
     }
 
 };

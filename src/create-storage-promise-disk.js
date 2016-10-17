@@ -1,7 +1,7 @@
 var fs = require("fs-extra");
 var path = require("path");
 
-module.exports = function createStoragePromiseDisk(kvsPath, cache) {
+module.exports = function createStoragePromiseDisk(kfsPath, cache) {
 
     return {
         set: set,
@@ -14,7 +14,7 @@ module.exports = function createStoragePromiseDisk(kvsPath, cache) {
         if (value === undefined) {
             return remove(key);
         }
-        var file = path.join(kvsPath, key);
+        var file = path.join(kfsPath, key);
         return new Promise(function(resolve, reject) {
             fs.outputJson(file, value, function(err) {
                 if (err) {
@@ -32,7 +32,7 @@ module.exports = function createStoragePromiseDisk(kvsPath, cache) {
             return Promise.resolve(cache.get(key));
         }
         else {
-            var file = path.join(kvsPath, key);
+            var file = path.join(kfsPath, key);
             return new Promise(function(resolve, reject) {
                 fs.stat(file, function(err, stat) {
                     if (err || !stat || !stat.isFile()) {
@@ -54,14 +54,14 @@ module.exports = function createStoragePromiseDisk(kvsPath, cache) {
     }
 
     function remove(key) {
-        var file = path.join(kvsPath, key);
+        var file = path.join(kfsPath, key);
         return new Promise(function(resolve, reject) {
             fs.remove(file, function(err) {
                 if (err) {
                     reject(err);
                 }
                 else {
-                    resolve(cache.remove());
+                    resolve(cache.remove(key));
                 }
             });
         });
@@ -69,7 +69,7 @@ module.exports = function createStoragePromiseDisk(kvsPath, cache) {
 
     function clear() {
         return new Promise(function(resolve, reject) {
-            fs.remove(kvsPath, function(err) {
+            fs.remove(kfsPath, function(err) {
                 if (err) {
                     reject(err);
                 }

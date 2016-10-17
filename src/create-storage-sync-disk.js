@@ -1,7 +1,7 @@
 var fs = require("fs-extra");
 var path = require("path");
 
-module.exports = function createStorageSync(kvsPath, cache) {
+module.exports = function createStorageSync(kfsPath, cache) {
 
     return {
         set: set,
@@ -14,7 +14,7 @@ module.exports = function createStorageSync(kvsPath, cache) {
         if (value === undefined) {
             return remove(key);
         }
-        var file = path.join(kvsPath, key);
+        var file = path.join(kfsPath, key);
         fs.outputJsonSync(file, value);
         return cache.set(key, value);
     }
@@ -23,7 +23,7 @@ module.exports = function createStorageSync(kvsPath, cache) {
         if (cache.get(key) !== undefined) {
             return cache.get(key);
         }
-        var file = path.join(kvsPath, key);
+        var file = path.join(kfsPath, key);
         try {
             var stat = fs.statSync(file);
             if (!stat || !stat.isFile()) {
@@ -37,13 +37,13 @@ module.exports = function createStorageSync(kvsPath, cache) {
     }
 
     function remove(key) {
-        var file = path.join(kvsPath, key);
+        var file = path.join(kfsPath, key);
         fs.removeSync(file);
         return cache.remove(key);
     }
 
     function clear() {
-        fs.removeSync(kvsPath);
+        fs.removeSync(kfsPath);
         return cache.clear();
     }
 
