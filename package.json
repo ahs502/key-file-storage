@@ -1,7 +1,7 @@
 {
   "name": "key-file-storage",
   "version": "2.0.0",
-  "description": "Simple cached key-value Node.js storage directly on file system, maps each key to JSON contents of a file.",
+  "description": "Simple key-value storage directly on file system, maps each key to a separate file.",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
@@ -19,7 +19,7 @@
     "storage",
     "json"
   ],
-  "author": "Hessam A Shokravi <ahs502@gmail.com> (http://ahs502.ir)",
+  "author": "Hessam A Shokravi <ahs502@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "fs-extra": "^0.30.0"
