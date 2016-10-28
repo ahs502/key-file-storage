@@ -34,14 +34,14 @@ function keyFileBasic(kfsPath, cache) {
         if (value === undefined) {
             return deleteSync(key);
         }
-        key = String(key);
+        key = validizeKey(key);
         var file = path.join(kfsPath, key);
         fs.outputJsonSync(file, value);
         return cache[key] = value;
     }
 
     function getSync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key in cache) {
             return cache[key];
         }
@@ -59,7 +59,7 @@ function keyFileBasic(kfsPath, cache) {
     }
 
     function deleteSync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key === '*') {
             return clearSync();
         }
@@ -80,7 +80,7 @@ function keyFileBasic(kfsPath, cache) {
     }
 
     function hasSync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key in cache) {
             return true;
         }
@@ -101,7 +101,7 @@ function keyFileBasic(kfsPath, cache) {
         if (value === undefined) {
             return deleteAsync(key);
         }
-        key = String(key);
+        key = validizeKey(key);
         var file = path.join(kfsPath, key);
         return new Promise(function(resolve, reject) {
             fs.outputJson(file, value, function(err) {
@@ -116,7 +116,7 @@ function keyFileBasic(kfsPath, cache) {
     }
 
     function getAsync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key in cache) {
             return Promise.resolve(cache[key]);
         }
@@ -143,7 +143,7 @@ function keyFileBasic(kfsPath, cache) {
     }
 
     function deleteAsync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key === '*') {
             return clearAsync();
         }
@@ -180,7 +180,7 @@ function keyFileBasic(kfsPath, cache) {
     }
 
     function hasAsync(key) {
-        key = String(key);
+        key = validizeKey(key);
         if (key in cache) {
             return Promise.resolve(true);
         }
@@ -197,6 +197,14 @@ function keyFileBasic(kfsPath, cache) {
                 });
             });
         }
+    }
+
+    function validizeKey(key) {
+        key = String(key);
+        if (key.indexOf('..') >= 0) {
+            throw new Error('Invalid key name.');
+        }
+        return key;
     }
 
 }

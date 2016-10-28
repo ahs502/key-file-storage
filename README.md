@@ -123,10 +123,37 @@ new kfs('*', callback)  /* or */  new kfs(callback)
 
 ## Notes
 
-- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*) so there is no need to load all the database file for any key access. Therefore, keys may be relative paths, e.g: `data.json`, `/my/key/01` or `any/other/relative/path/to/a/file`.
+- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*) so there is no need to load all the database file for any key access. Therefore, keys may be relative paths, e.g: `data.json`, `/my/key/01` or `any/other/relative/path/to/a/file`. The only exception is strings including `..` (*double dot*) which will not be accepted for security reasons.
 
 - **NOTE 2 :** There is a built-in implemented **cache**, so accessing a certain key more than once won't require file-system level operations (off course with some active cache).
 
+## Example
+
+```javascript
+var keyFileStorage = require("key-file-storage");
+
+// Locate 'db' folder in current directory as the storage path,
+// Require 100 latest accessed key-values to be cached:
+var kfs = keyFileStorage('./db', 100);
+
+// Create file './db/users/hessam' containing this user data synchronously: 
+kfs['users/hessam'] = {
+    name: "Hessam",
+    age: 30
+};
+
+// Read file './db/users/hessam/skills' as a JSON object asynchronously:
+kfs('users/hessam/skills').then(skills => {
+    console.log("Hessam's java skill is ", skills.java);
+});
+
+// Check whether file './db/users/mahdiar' exists or not asynchronously:
+'users/mahdiar' in kfs(exists => {
+    if(exists) {
+        console.log("We have Mahdiar's data!");
+    }
+});
+```
 
 ## Contribute
 
