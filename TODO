@@ -1,0 +1,8 @@
+
+    *   Use Javascript's Set for key list in cache.
+    
+    *   Take a look at these links:
+            https://www.npmjs.com/package/matched
+            https://www.npmjs.com/package/delete-empty
+            
+    

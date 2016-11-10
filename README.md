@@ -12,35 +12,47 @@ It's great for applications with small and medium data sizes.
 + Built-in configurable cache
 + Both *Promise* and *Callback* support
 
+```javascript
+var kfs = require("key-file-storage")('my/storage/path');
+
+// Write something to file 'my/storage/path/myfile'
+kfs.myfile = { mydata: 123 };
+
+// Read contents of file 'my/storage/path/myfile'
+var mydata = kfs.myfile.mydata;
+
+// Delete file 'my/storage/path/myfile'
+delete kfs.myfile;
+```
+
 Just give it a try, you'll like it!
 
 ## Installation
 
-Installing package on Node.js (*Node.js 6.0.0 or higher is required*) :
+Installing package on Node.js (*Node.js **6.0.0** or higher is required*) :
 ```sh
 $ npm install key-file-storage
 ```
 
 ## Initialization
 
-Initializing key-file storage :
+Initializing a key-file storage :
 ```javascript
 var keyFileStorage = require("key-file-storage");
 
-// Using an unlimited cache
-var kfs = keyFileStorage('/path/to/the/storage/directory');
-
-/* or */
-
-// Using a custom cache
-var kfs = keyFileStorage('/path/to/the/storage/directory', cacheConfig);
+var kfs = keyFileStorage('/storage/directory/path', caching);
 ```
 
-The value of `cacheConfig` can be
+The value of `caching` can be
 
-1. `true` (_By default_) : Unlimited cache, anything will be cached on memory, good for small data volumes.
-2. `false` : No cache, read the files from disk every time, good when other applications can modify the files' contents arbitrarily.
-3. `n` (_An integer number_) : Limited cache, only the `n` latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
+1. `true` (_Default value, if not specified_) :
+Unlimited cache, anything will be cached on memory, good for small data volumes.
+
+2. `false` :
+No cache, read the files from disk every time, good when other applications can modify the files' contents arbitrarily.
+
+3. `n` (_An integer number_) :
+Limited cache, only the `n` latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
 
 ## Usage
 
@@ -49,83 +61,119 @@ The value of `cacheConfig` can be
 As simple as native javascript objects :
 
 ```javascript
-// Set
-kfs['key'] = value
-
-// Get
-kfs['key']
-
-// Delete
-delete kfs['key']
-
-// Check for existence
-'key' in kfs    // true or false
-
-// Clear all database
-delete kfs['*']
+kfs['key'] = value       // Write file
+```
+```javascript
+kfs['key']               // Read file
+```
+```javascript
+delete kfs['key']        // Delete file
+```
+```javascript
+delete kfs['*']          // Delete all storage files
+```
+```javascript
+'key' in kfs             // Check for file existence
+                         //=> true or false
 ```
 
 - You can use `kfs.keyName` instead of `kfs['keyName']` anywhere if the key name allows.
 
-- `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `kfs['key'] = undefined` or even `kfs['*'] = undefined` to delete data.
+- `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `kfs['key'] = undefined` or even `kfs['*'] = undefined` to delete files.
 
 - Synchronous API will throw an exception if any errors happens, so you shall handle it your way.
 
 ### Asynchronous API with Promises
 
-Every one of the following calls returns a promise :
+Every one of the following calls **returns a promise** :
 
 ```javascript
-// Set
-kfs('key', value)
-
-// Get
-kfs('key')
-
-// Delete
-new kfs('key')
-
-// Check for existence
-('key' in kfs(), kfs())    // resolves to true or false
-
-// Clear all database
-new kfs('*')  /* or */  new kfs()
+kfs('key', value)        // Write file
+```
+```javascript
+kfs('key')               // Read file
+```
+```javascript
+new kfs('key')           // Delete file
+```
+```javascript
+new kfs('*')  /* or */
+new kfs()     /* or */
+new kfs                  // Delete all storage files
+```
+```javascript
+('key' in kfs(), kfs())  // Check for file existence
+                         // Resolves to true or false
 ```
 
-- Once again, `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `kfs('key', undefined)` or even `kfs('*', undefined)` to delete data.
+- Once again, `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `kfs('key', undefined)` or even `kfs('*', undefined)` to delete files.
 
 ### Asynchronous API with Callbacks
 
 The same as asynchronous with promises, but with callback function as the last input value of `kfs()` :
 
 ```javascript
-// Set
-kfs('key', value, callback)
-
-// Get
-kfs('key', callback)
-
-// Delete
-new kfs('key', callback)
-
-// Check for existence
-'key' in kfs(callback)             // No promise returns anymore
-/* or */
-('key' in kfs(), kfs(callback))    // resolves to true or false
-
-// Clear all database
-new kfs('*', callback)  /* or */  new kfs(callback)
+kfs('key', value, cb)   // Write file
+```
+```javascript
+kfs('key', cb)          // Read file
+```
+```javascript
+new kfs('key', cb)      // Delete file
+```
+```javascript
+new kfs('*', cb)   /* or */
+new kfs(cb)             // Delete all storage files
+```
+```javascript
+'key' in kfs(cb)        // Check for file existence
+                        // without promise output
+                   /* or */
+('key' in kfs(), kfs(cb))
+                        // Check for file existence
+                        // with promise output
 ```
 
 - These calls *still* return a promise on their output (except for `'key' in kfs(callback)` form of existence check).
 
-- The first input parameter of all callback functions is `err`, so you shall handle it within the callback. *Set*, *Get* and *Existence check* callbacks provide the return values as their second input parameter.
+- The first input parameter of all callback functions is `err`, so you shall handle it within the callback. *Reading* and *Existence checking* callbacks provide the return values as their second input parameter.
+
+### Folders as Collections
+
+Every folder in the storage can be treated as a *collection* of *key-values*.
+
+You can query the list of all containing keys (*filenames*) within a collection (*folder*) like this (_**Note** that a collection path must end with a **forward slash** `'/'`_) :
+
+#### Synchronous API
+
+```javascript
+var keys = kfs['col/path/']
+// keys = ['col/path/key1', 'col/path/sub/key2', ... ]
+```
+
+#### Asynchronous API with Promises
+
+```javascript
+kfs('col/path/').then(function(keys) {
+    // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
+});
+```
+
+#### Asynchronous API with Callbacks
+
+```javascript
+kfs('col/path/', function(error, keys) {
+    // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
+});
+```
 
 ## Notes
 
-- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*) so there is no need to load all the database file for any key access. Therefore, keys may be relative paths, e.g: `data.json`, `/my/key/01` or `any/other/relative/path/to/a/file`. The only exception is strings including `..` (*double dot*) which will not be accepted for security reasons.
+- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*). Therefore, keys may be relative paths, e.g: `'data.json'`, `'/my/key/01'` or `'any/other/relative/path/to/a/file'`. The only exception is strings including `'..'` (*double dot*) which will not be accepted for security reasons.
 
-- **NOTE 2 :** There is a built-in implemented **cache**, so accessing a certain key more than once won't require file-system level operations (off course with some active cache).
+- **NOTE 2 :** If a key's relative path ends with a *forward slash* `'/'`, it will be considered to be a collection (*folder*) name. So, `'data/set/'` is a collection and `'data/set/key'` is a key in that collection.
+
+- **NOTE 3 :** This module has a built-in implemented **cache**, so, when activated, accessing a certain key more than once won't require file-system level operations again for that file.
 
 ## Example
 
@@ -139,25 +187,33 @@ var kfs = keyFileStorage('./db', 100);
 // Create file './db/users/hessam' containing this user data synchronously: 
 kfs['users/hessam'] = {
     name: "Hessam",
-    age: 30
+    skills: {
+        java: 10,
+        csharp: 15
+    }
 };
 
 // Read file './db/users/hessam/skills' as a JSON object asynchronously:
-kfs('users/hessam/skills').then(skills => {
-    console.log("Hessam's java skill is ", skills.java);
+kfs('users/hessam').then(function(hessamData) {
+    console.log("Hessam's java skill is ",
+        hessamData.skills.java);
 });
 
 // Check whether file './db/users/mahdiar' exists or not asynchronously:
-'users/mahdiar' in kfs(exists => {
+'users/mahdiar' in kfs(function(error, exists) {
     if(exists) {
         console.log("We have Mahdiar's data!");
     }
 });
+
+// List the file names of all users in './db/users/' synchronously:
+var allUsers = kfs['users/'];
+//=> ['users/hessam', 'users/mahdiar', ... ]
 ```
 
 ## Contribute
 
-The code is simple and straightforward. It would be nice if you had any suggestions or contribution on it or detected any bug or issue.
+The code is simple and straightforward. It would be appreciated if you had any suggestions or contribution on it or detected any bug or issue.
 
-+ See the code on [GitHub.com](https://github.com/ahs502/key-file-storage)
++ See the code on [GitHub.com (key-file-storage)](https://github.com/ahs502/key-file-storage)
 + Contact me by [my gmail address](ahs502@gmail.com)  *(Hessam A Shokravi)*

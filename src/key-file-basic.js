@@ -1,14 +1,15 @@
 var fs = require("fs-extra");
 var path = require("path");
+var isValidPath = require('is-valid-path');
+var recurFs = require('recur-fs');
 
 module.exports = keyFileBasic;
 
 function keyFileBasic(kfsPath, cache) {
 
-    if (kfsPath === undefined) {
-        kfsPath = __dirname; // Current working folder by default.
-    }
-    else if (typeof kfsPath !== 'string') {
+    kfsPath = kfsPath || __dirname; // Current working folder by default.
+    kfsPath = String(kfsPath);
+    if (!isValidPath(kfsPath)) {
         throw new Error('Invalid stroage path.');
     }
 
@@ -26,7 +27,11 @@ function keyFileBasic(kfsPath, cache) {
         getAsync,
         deleteAsync,
         clearAsync,
-        hasAsync
+        hasAsync,
+
+        // Iterate
+        querySync,
+        queryAsync
 
     };
 
@@ -199,9 +204,41 @@ function keyFileBasic(kfsPath, cache) {
         }
     }
 
+    function querySync(collection) {
+        try {
+            collection = path.join(kfsPath, validizeKey(collection));
+            var files = recurFs.readdir.sync(collection, function(resource, stat) {
+                return stat.isFile();
+            });
+            files = files.map(file => path.relative(kfsPath, file));
+            return files || [];
+        }
+        catch (err) {
+            return [];
+        }
+    }
+
+    function queryAsync(collection) {
+        return new Promise(function(resolve, reject) {
+            collection = path.join(kfsPath, validizeKey(collection));
+            recurFs.readdir(collection, function(resource, stat, next) {
+                next(stat.isFile());
+            }, function(err, resources) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(resources.map(file => path.relative(kfsPath, file)));
+                }
+            });
+        });
+    }
+
+    ///////////////////////////////////////////////////
+
     function validizeKey(key) {
         key = String(key);
-        if (key.indexOf('..') >= 0) {
+        if (key.indexOf('/..') >= 0 || key.indexOf('../') >= 0 || key === '..') {
             throw new Error('Invalid key name.');
         }
         return key;

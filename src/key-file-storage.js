@@ -54,6 +54,10 @@ function createKfs(kfsPath, cache) {
                         return new Proxy({}, hasAsyncWrap);
                     }
                 }
+                else if (String(a1).slice(-1) === '/') {
+                    /* async query pr */
+                    return kfb.queryAsync(a1);
+                }
                 else {
                     /* async get pr */
                     return kfb.getAsync(a1);
@@ -62,8 +66,14 @@ function createKfs(kfsPath, cache) {
 
             case 2:
                 if (typeof a2 === 'function') {
-                    /* async get cb */
-                    return callbackizePromise(kfb.getAsync(a1), a2);
+                    if (String(a1).slice(-1) === '/') {
+                        /* async query cb */
+                        return callbackizePromise(kfb.queryAsync(a1), a2);
+                    }
+                    else {
+                        /* async get cb */
+                        return callbackizePromise(kfb.getAsync(a1), a2);
+                    }
                 }
                 else {
                     /* async set pr */
@@ -89,9 +99,15 @@ function createKfs(kfsPath, cache) {
             return kfb.setSync(property, value);
         },
 
-        /* sync get */
         get: function(target, property, receiver) {
-            return kfb.getSync(property);
+            if (String(property).slice(-1) === '/') {
+                /* sync query */
+                return kfb.querySync(property);
+            }
+            else {
+                /* sync get */
+                return kfb.getSync(property);
+            }
         },
 
         /* sync delete */
@@ -117,7 +133,12 @@ function createKfs(kfsPath, cache) {
                     // break;
 
                 case 1:
-                    return kfb.deleteAsync(a1);
+                    if (typeof a1 === 'function') {
+                        return callbackizePromise(kfb.clearAsync(), a1);
+                    }
+                    else {
+                        return kfb.deleteAsync(a1);
+                    }
                     // break;
 
                 case 2:

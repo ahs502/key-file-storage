@@ -22,7 +22,9 @@
   "author": "Hessam A Shokravi <ahs502@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "fs-extra": "^0.30.0"
+    "fs-extra": "^0.30.0",
+    "is-valid-path": "^0.1.1",
+    "recur-fs": "^2.2.4"
   },
   "devDependencies": {
     "colors": "^1.1.2",
