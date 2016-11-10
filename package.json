@@ -1,6 +1,6 @@
 {
   "name": "key-file-storage",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Simple key-value storage directly on file system, maps each key to a separate file.",
   "main": "main.js",
   "scripts": {
