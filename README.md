@@ -46,12 +46,15 @@ var kfs = keyFileStorage('/storage/directory/path', caching);
 The value of `caching` can be
 
 1. `true` (_Default value, if not specified_) :
+
 Unlimited cache, anything will be cached on memory, good for small data volumes.
 
 2. `false` :
+
 No cache, read the files from disk every time, good when other applications can modify the files' contents arbitrarily.
 
 3. `n` (_An integer number_) :
+
 Limited cache, only the `n` latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
 
 ## Usage
@@ -110,7 +113,7 @@ new kfs                  // Delete all storage files
 
 ### Asynchronous API with Callbacks
 
-The same as asynchronous with promises, but with callback function as the last input value of `kfs()` :
+The same as asynchronous with promises, but with callback function as the last input parameter of `kfs()` :
 
 ```javascript
 kfs('key', value, cb)   // Write file
@@ -213,7 +216,7 @@ var allUsers = kfs['users/'];
 
 ## Contribute
 
-The code is simple and straightforward. It would be appreciated if you had any suggestions or contribution on it or detected any bug or issue.
+The code is simple! It would be appreciated if you had any suggestions or contribution on it or detected any bug or issue.
 
 + See the code on [GitHub.com (key-file-storage)](https://github.com/ahs502/key-file-storage)
 + Contact me by [my gmail address](ahs502@gmail.com)  *(Hessam A Shokravi)*

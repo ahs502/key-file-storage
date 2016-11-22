@@ -6,18 +6,20 @@ function createKfs(kfsPath, cache) {
 
     var kfb = keyFileBasic(kfsPath, cache);
 
-    // The produced promise or callback function related to the latest async 'in' operator
-    var hasAsyncHandler = null;
+    // The produced promise and callback function related to the latest async 'in' operator
+    var hasAsyncHandler = null,
+        hasAsyncPromise = null;
 
     /* async has */
     var hasAsyncWrap = {
         has: function(target, property) {
             var promise = kfb.hasAsync(property);
-            if (typeof hasAsyncHandler === 'function') {
+            if (hasAsyncHandler) {
                 callbackizePromise(promise, hasAsyncHandler);
+                hasAsyncHandler = null;
             }
             else {
-                hasAsyncHandler = promise;
+                hasAsyncPromise = promise;
             }
             return false; // No synchronous answer.
         }
@@ -32,9 +34,9 @@ function createKfs(kfsPath, cache) {
         switch (arguments.length) {
 
             case 0:
-                if (hasAsyncHandler) {
-                    a3 = hasAsyncHandler;
-                    hasAsyncHandler = null;
+                if (hasAsyncPromise) {
+                    a3 = hasAsyncPromise;
+                    hasAsyncPromise = null;
                     return a3;
                 }
                 else {
@@ -44,9 +46,9 @@ function createKfs(kfsPath, cache) {
 
             case 1:
                 if (typeof a1 === 'function') {
-                    if (hasAsyncHandler) {
-                        a3 = hasAsyncHandler;
-                        hasAsyncHandler = null;
+                    if (hasAsyncPromise) {
+                        a3 = hasAsyncPromise;
+                        hasAsyncPromise = null;
                         return callbackizePromise(a3, a1);
                     }
                     else {

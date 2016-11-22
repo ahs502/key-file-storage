@@ -65,8 +65,9 @@ var keyFileStorage = require("./"),
     kfs;
 
 // testBasicAsyncPromise();
+testBasicAsyncHas();
 // testBasicSync();
-testBasicQuery();
+// testBasicQuery();
 
 /////////////////////////////////////////////////////
 
@@ -117,6 +118,67 @@ function testBasicAsyncPromise() {
         .then(x => e(x, null, '0013'), errorHandler)
 
     .then(() => terminateCondition = true, () => terminateCondition = true);
+
+    function errorHandler(err) {
+        console.log(String(err).res.inverse);
+        return '';
+    }
+}
+
+/////////////////////////////////////////////////////
+
+function testBasicAsyncHas() {
+    kfs = keyFileStorage('./db', 2);
+
+    'a' in kfs(function(e, a) {
+        'b' in kfs(function(e, a) {
+            'c' in kfs(function(e, a) {
+                'd' in kfs(function(e, a) {
+                    'e' in kfs(function(e, a) {
+                        'f' in kfs(function(e, a) {
+
+                            'g' in kfs();
+                            kfs(function(e, a) {
+                                'h' in kfs();
+                                kfs(function(e, a) {
+                                    'i' in kfs();
+                                    kfs(function(e, a) {
+
+                                        'j' in kfs();
+                                        kfs().then(function(a) {
+                                            'k' in kfs();
+                                            kfs().then(function(a) {
+                                                'l' in kfs();
+                                                kfs().then(function(a) {
+
+                                                    'm' in kfs(function(e, a) {
+                                                        ('n' in kfs(), kfs()).then(function(a) {
+                                                            'o' in kfs();
+                                                            kfs(function(e, a) {
+                                                                'p' in kfs();
+                                                                kfs().then(function(a) {
+
+                                                                    console.log(terminateCondition = true);
+
+                                                                });
+                                                            });
+                                                        });
+                                                    });
+
+                                                });
+                                            });
+                                        });
+
+                                    });
+                                });
+                            });
+
+                        });
+                    });
+                });
+            });
+        });
+    });
 
     function errorHandler(err) {
         console.log(String(err).res.inverse);
@@ -201,6 +263,7 @@ function testBasicQuery() {
             if (err) return Promise.reject(err);
             a(keys, ['asd/wer/5/1'], '0013');
         }))
+        .then(() => new kfs)
 
     .then(() => terminateCondition = true, () => terminateCondition = true);
 }
