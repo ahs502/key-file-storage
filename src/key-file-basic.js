@@ -221,16 +221,71 @@ function keyFileBasic(kfsPath, cache) {
     function queryAsync(collection) {
         return new Promise(function(resolve, reject) {
             collection = path.join(kfsPath, validizeKey(collection));
-            recurFs.readdir(collection, function(resource, stat, next) {
-                next(stat.isFile());
-            }, function(err, resources) {
+
+            //// This implementation does not work with empty folders:
+            // recurFs.readdir(collection, function(resource, stat, next) {
+            //     next(stat.isFile());
+            // }, function(err, resources) {
+            //     if (err) {
+            //         reject(err);
+            //     }
+            //     else {
+            //         resolve(resources.map(file => path.relative(kfsPath, file)));
+            //     }
+            // });
+
+            var fileList = [],
+                jobNumber = 1,
+                terminated = false;
+
+            fs.stat(collection, function(err, stat) {
                 if (err) {
-                    reject(err);
+                    if (err.code === 'ENOENT') resolve([]);
+                    else reject(err);
                 }
                 else {
-                    resolve(resources.map(file => path.relative(kfsPath, file)));
+                    processFolder(collection);
                 }
             });
+
+            function processFolder(folder) {
+                if (terminated) return;
+                fs.readdir(folder, function(err, files) {
+                    if (terminated) return;
+                    jobNumber--;
+                    if (err) {
+                        terminated = true;
+                        reject(err);
+                    }
+                    jobNumber += files.length;
+                    if (!jobNumber) {
+                        resolve(fileList);
+                    }
+                    files.forEach(function(file) {
+                        if (terminated) return;
+                        var filePath = path.join(folder, file);
+                        fs.stat(filePath, function(err, stat) {
+                            if (terminated) return;
+                            jobNumber--;
+                            if (err) {
+                                terminated = true;
+                                reject(err);
+                            }
+                            if (stat.isFile()) {
+                                fileList.push(path.relative(kfsPath, filePath));
+                            }
+                            else if (stat.isDirectory()) {
+                                jobNumber++;
+                                processFolder(filePath);
+                            }
+                            if (!jobNumber) {
+                                resolve(fileList);
+                            }
+                        });
+                    });
+                });
+            }
+
         });
     }
 

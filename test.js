@@ -65,9 +65,9 @@ var keyFileStorage = require("./"),
     kfs;
 
 // testBasicAsyncPromise();
-testBasicAsyncHas();
+// testBasicAsyncHas();
 // testBasicSync();
-// testBasicQuery();
+testBasicQuery();
 
 /////////////////////////////////////////////////////
 
