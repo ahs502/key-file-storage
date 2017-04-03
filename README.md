@@ -1,9 +1,8 @@
 # key-file-storage
 
-#### Simple key-value storage directly on file system, maps each key to a separate file.
+#### Simple key-value storage (a persistent data structure) directly on file system, maps each key to a separate file.
 
-No database and database overhead anymore, just plain file-system and simple files containing JSON data!
-It's great for applications with small and medium data sizes.
+A very nice replacement for any of these node modules: [node-persist](https://www.npmjs.com/package/node-persist), [configstore](https://www.npmjs.com/package/configstore), [flat-cache](https://www.npmjs.com/package/flat-cache), [conf](https://www.npmjs.com/package/conf), [simple-store](https://www.npmjs.com/package/simple-store) and more...
 
 + Simple *key-value* storage model
 + Very easy to learn and use

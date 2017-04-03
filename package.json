@@ -11,13 +11,25 @@
     "url": "https://github.com/ahs502/key-file-storage"
   },
   "keywords": [
+    "node",
     "key",
     "value",
     "file",
     "fs",
     "store",
     "storage",
-    "json"
+    "save",
+    "json",
+    "persist",
+    "persistent",
+    "data",
+    "structure",
+    "config",
+    "conf",
+    "configuration",
+    "settings",
+    "preferences",
+    "cache"
   ],
   "author": "Hessam A Shokravi <ahs502@gmail.com>",
   "license": "ISC",
