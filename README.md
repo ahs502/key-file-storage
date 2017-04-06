@@ -176,33 +176,30 @@ kfs('col/path/', function(error, keys) {
 ```javascript
 var keyFileStorage = require("key-file-storage");
 
-// Locate 'db' folder in current directory as the storage path,
+// Locate 'db' folder in the current directory as the storage path,
 // Require 100 latest accessed key-values to be cached:
 var kfs = keyFileStorage('./db', 100);
 
-// Create file './db/users/hessam' containing this user data synchronously: 
+// Create file './db/users/hessam' containing this user data, synchronously: 
 kfs['users/hessam'] = {
     name: "Hessam",
-    skills: {
-        java: 10,
-        csharp: 15
-    }
+    skills: { java: 10, csharp: 15 }
 };
 
-// Read file './db/users/hessam/skills' as a JSON object asynchronously:
+// Read file './db/users/hessam' as a JSON object, asynchronously:
 kfs('users/hessam').then(function(hessamData) {
     console.log("Hessam's java skill is ",
         hessamData.skills.java);
 });
 
-// Check whether file './db/users/mahdiar' exists or not asynchronously:
+// Check whether file './db/users/mahdiar' exists or not, asynchronously:
 'users/mahdiar' in kfs(function(error, exists) {
     if(exists) {
         console.log("We have Mahdiar's data!");
     }
 });
 
-// List the file names of all users in './db/users/' synchronously:
+// List all the keys in './db/users/', synchronously:
 var allUsers = kfs['users/'];
 //=> ['users/hessam', 'users/mahdiar', ... ]
 ```
