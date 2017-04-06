@@ -44,17 +44,11 @@ var kfs = keyFileStorage('/storage/directory/path', caching);
 
 The value of `caching` can be
 
-1. `true` (_Default value, if not specified_) :
+1. **`true`** (_By default, if not specified_) : Unlimited cache, anything will be cached on memory, good for small data volumes.
 
-Unlimited cache, anything will be cached on memory, good for small data volumes.
+2. **`false`** : No cache, read the files from disk every time, good when other applications can modify the files' contents arbitrarily.
 
-2. `false` :
-
-No cache, read the files from disk every time, good when other applications can modify the files' contents arbitrarily.
-
-3. `n` (_An integer number_) :
-
-Limited cache, only the `n` latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
+3. **`n`** (_An integer number_) : Limited cache, only the **`n`** latest referred key-values will be cached, good for large data volumes where only a fraction of data is being used frequently .
 
 ## Usage
 
