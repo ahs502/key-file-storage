@@ -167,9 +167,11 @@ kfs('col/path/', function(error, keys) {
 
 - **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*). Therefore, keys may be relative paths, e.g: `'data.json'`, `'/my/key/01'` or `'any/other/relative/path/to/a/file'`. The only exception is strings including `'..'` (*double dot*) which will not be accepted for security reasons.
 
-- **NOTE 2 :** If a key's relative path ends with a *forward slash* `'/'`, it will be considered to be a collection (*folder*) name. So, `'data/set/'` is a collection and `'data/set/key'` is a key in that collection.
+- **NOTE 2 :** You may have hidden key files by simply add a `'.'` before the filename in the key path.
 
-- **NOTE 3 :** This module has a built-in implemented **cache**, so, when activated, accessing a certain key more than once won't require file-system level operations again for that file.
+- **NOTE 3 :** If a key's relative path ends with a *forward slash* `'/'`, it will be considered to be a collection (*folder*) name. So, `'data/set/'` is a collection and `'data/set/key'` is a key in that collection.
+
+- **NOTE 4 :** This module has a built-in implemented **cache**, so, when activated, accessing a certain key more than once won't require file-system level operations again for that file.
 
 ## Example
 
