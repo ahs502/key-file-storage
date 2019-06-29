@@ -136,7 +136,7 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }) 
     },
   );
 
-  return kfs;
+  return kfs as any;
 
   function callbackizePromise(promise: Promise<unknown>, callback: any) {
     if (typeof callback === 'function') {
