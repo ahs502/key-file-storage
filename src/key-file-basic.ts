@@ -203,22 +203,24 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   }
 
   function querySync(collection: string) {
+    collection = join(kfsPath, validizeKey(collection));
+    if (collection in cache) return cache[collection];
     try {
-      collection = join(kfsPath, validizeKey(collection));
       var files = recurFs.readdir.sync(collection, function(resource: any, status: { isFile: () => void }) {
         return status.isFile();
       });
       files = files.map((file: string) => relative(kfsPath, file));
-      return files || [];
+      return (cache[collection] = files || []);
     } catch (err) {
       return [];
     }
   }
 
   function queryAsync(collection: string) {
-    return new Promise(function(resolve, reject) {
-      collection = join(kfsPath, validizeKey(collection));
+    collection = join(kfsPath, validizeKey(collection));
+    if (collection in cache) return Promise.resolve(cache[collection]);
 
+    return new Promise(function(resolve, reject) {
       //// This implementation does not work with empty folders:
       // recurFs.readdir(collection, function(resource, status, next) {
       //     next(status.isFile());
@@ -237,7 +239,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
       stat(collection, function(err, status) {
         if (err) {
-          if (err.code === 'ENOENT') resolve([]);
+          if (err.code === 'ENOENT') resolve((cache[collection] = []));
           else reject(err);
         } else {
           processFolder(collection);
@@ -255,7 +257,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
           }
           jobNumber += files.length;
           if (!jobNumber) {
-            resolve(fileList);
+            resolve((cache[collection] = fileList));
           }
           files.forEach(function(file) {
             if (terminated) return;
@@ -274,7 +276,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
                 processFolder(filePath);
               }
               if (!jobNumber) {
-                resolve(fileList);
+                resolve((cache[collection] = fileList));
               }
             });
           });
