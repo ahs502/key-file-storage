@@ -1,4 +1,8 @@
-export default function createCache(cacheConfig?: number | boolean) {
+export interface KfsCache {
+  [key: string]: any;
+}
+
+export default function createCache(cacheConfig?: number | boolean): KfsCache {
   if (cacheConfig === true || typeof cacheConfig === 'undefined') {
     // Unlimited cache by default
     return createCache_Unlimited(cacheConfig);
@@ -20,7 +24,8 @@ export default function createCache(cacheConfig?: number | boolean) {
       {
         set: function(target, property, value, receiver) {
           property in target || cleanUpCachedCollections(target, property);
-          return ((target as any)[property] = value);
+          (target as any)[property] = value;
+          return true;
         },
 
         get: function(target, property, receiver) {
@@ -58,7 +63,7 @@ export default function createCache(cacheConfig?: number | boolean) {
       },
       {
         set: function(target, property, value, receiver) {
-          return value;
+          return true;
         },
 
         get: function(target, property, receiver) {
@@ -97,7 +102,8 @@ export default function createCache(cacheConfig?: number | boolean) {
               });
           }
           updateKeys(target, property, 'SET');
-          return ((target as any)[property] = value);
+          (target as any)[property] = value;
+          return true;
         },
 
         get: function(target, property, receiver) {

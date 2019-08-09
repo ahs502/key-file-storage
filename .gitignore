@@ -1,8 +1,10 @@
 node_modules
 dist
 
-test.js
 data
+test.js
+index.js
+src/*.js
 
 logs
 *.log

@@ -14,7 +14,24 @@ import { join, relative } from 'path';
 const isValidPath = require('is-valid-path');
 const recurFs = require('recur-fs');
 
-export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any }) {
+export interface KeyFileBasic {
+  setSync(key: string, value: any): any;
+  getSync(key: string): any;
+  deleteSync(key: string): boolean;
+  clearSync(): boolean;
+  hasSync(key: string): boolean;
+
+  setAsync(key: string, value: any): Promise<any>;
+  getAsync(key: string): Promise<any>;
+  deleteAsync(key: string): Promise<boolean>;
+  clearAsync(): Promise<boolean>;
+  hasAsync(key: string): Promise<boolean>;
+
+  querySync(collection: string): string[];
+  queryAsync(collection: string): Promise<string[]>;
+}
+
+export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any }): KeyFileBasic {
   kfsPath = kfsPath || __dirname; // Current working folder by default.
   kfsPath = String(kfsPath);
   if (!isValidPath(kfsPath)) {
@@ -148,7 +165,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     }
   }
 
-  function deleteAsync(key: string) {
+  function deleteAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
     if (key === '*') {
       return clearAsync();
@@ -165,7 +182,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     });
   }
 
-  function clearAsync() {
+  function clearAsync(): Promise<boolean> {
     return new Promise(function(resolve, reject) {
       remove(kfsPath, function(err) {
         if (err) {
@@ -184,7 +201,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     });
   }
 
-  function hasAsync(key: string) {
+  function hasAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
     if (key in cache) {
       return Promise.resolve(true);
@@ -216,7 +233,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     }
   }
 
-  function queryAsync(collection: string) {
+  function queryAsync(collection: string): Promise<string[]> {
     collection = join(kfsPath, validizeKey(collection));
     if (collection in cache) return Promise.resolve(cache[collection]);
 
