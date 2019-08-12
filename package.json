@@ -35,7 +35,7 @@
     "preferences",
     "cache"
   ],
-  "author": "Hessam A Shokravi <ahs502@gmail.com>",
+  "author": "Hessamoddin A Shokravi <ahs502@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "@types/fs-extra": "^8.0.0",
