@@ -59,9 +59,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   };
 
   function setSync(key: string, value: any) {
-    if (value === undefined) {
-      return deleteSync(key);
-    }
+    if (value === undefined) return deleteSync(key);
     key = validizeKey(key);
     var file = join(kfsPath, key);
     outputJsonSync(file, value);
@@ -70,15 +68,11 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
   function getSync(key: string) {
     key = validizeKey(key);
-    if (key in cache) {
-      return cache[key];
-    }
+    if (key in cache) return cache[key];
     var file = join(kfsPath, key);
     try {
       var status = statSync(file);
-      if (!status || !status.isFile()) {
-        return (cache[key] = null);
-      }
+      if (!status || !status.isFile()) return (cache[key] = null);
     } catch (err) {
       return (cache[key] = null);
     }
@@ -87,9 +81,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
   function deleteSync(key: string) {
     key = validizeKey(key);
-    if (key === '*') {
-      return clearSync();
-    }
+    if (key === '*') return clearSync();
     var file = join(kfsPath, key);
     removeSync(file);
     return delete cache[key];
@@ -97,27 +89,16 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
   function clearSync() {
     removeSync(kfsPath);
-    if (cache.constructor === Object) {
-      cache = {
-        /*NEW-EMPTY-CACHE*/
-      };
-      return true;
-    } else {
-      return delete cache['*'];
-    }
+    return delete cache['*'];
   }
 
   function hasSync(key: string) {
     key = validizeKey(key);
-    if (key in cache) {
-      return true;
-    }
+    if (key in cache) return true;
     var file = join(kfsPath, key);
     try {
       var status = statSync(file);
-      if (!status || !status.isFile()) {
-        return false;
-      }
+      if (!status || !status.isFile()) return false;
     } catch (err) {
       return false;
     }
@@ -125,59 +106,40 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   }
 
   function setAsync(key: string, value: any) {
-    if (value === undefined) {
-      return deleteAsync(key);
-    }
+    if (value === undefined) return deleteAsync(key);
     key = validizeKey(key);
     var file = join(kfsPath, key);
     return new Promise(function(resolve, reject) {
       outputJson(file, value, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve((cache[key] = value));
-        }
+        if (err) return reject(err);
+        resolve((cache[key] = value));
       });
     });
   }
 
   function getAsync(key: string) {
     key = validizeKey(key);
-    if (key in cache) {
-      return Promise.resolve(cache[key]);
-    } else {
-      var file = join(kfsPath, key);
-      return new Promise(function(resolve, reject) {
-        stat(file, function(err, status) {
-          if (err || !status || !status.isFile()) {
-            resolve((cache[key] = null));
-          } else {
-            readJson(file, function(err, value) {
-              if (err) {
-                reject(err);
-              } else {
-                resolve((cache[key] = value));
-              }
-            });
-          }
+    if (key in cache) return Promise.resolve(cache[key]);
+    var file = join(kfsPath, key);
+    return new Promise(function(resolve, reject) {
+      stat(file, function(err, status) {
+        if (err || !status || !status.isFile()) return resolve((cache[key] = null));
+        readJson(file, function(err, value) {
+          if (err) return reject(err);
+          resolve((cache[key] = value));
         });
       });
-    }
+    });
   }
 
   function deleteAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
-    if (key === '*') {
-      return clearAsync();
-    }
+    if (key === '*') return clearAsync();
     var file = join(kfsPath, key);
     return new Promise(function(resolve, reject) {
       remove(file, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(delete cache[key]);
-        }
+        if (err) return reject(err);
+        resolve(delete cache[key]);
       });
     });
   }
@@ -185,48 +147,32 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function clearAsync(): Promise<boolean> {
     return new Promise(function(resolve, reject) {
       remove(kfsPath, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          if (cache.constructor === Object) {
-            cache = {
-              /*NEW-EMPTY-CACHE*/
-            };
-            resolve(true);
-          } else {
-            resolve(delete cache['*']);
-          }
-        }
+        if (err) return reject(err);
+        resolve(delete cache['*']);
       });
     });
   }
 
   function hasAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
-    if (key in cache) {
-      return Promise.resolve(true);
-    } else {
-      var file = join(kfsPath, key);
-      return new Promise(function(resolve, reject) {
-        stat(file, function(err, status) {
-          if (err || !status || !status.isFile()) {
-            resolve(false);
-          } else {
-            resolve(true);
-          }
-        });
+    if (key in cache) return Promise.resolve(true);
+    var file = join(kfsPath, key);
+    return new Promise(function(resolve, reject) {
+      stat(file, function(err, status) {
+        resolve(!!(!err && status && status.isFile()));
       });
-    }
+    });
   }
 
   function querySync(collection: string) {
-    collection = join(kfsPath, validizeKey(collection));
+    collection = validizeKey(collection);
     if (collection in cache) return cache[collection];
     try {
-      var files = recurFs.readdir.sync(collection, function(resource: any, status: { isFile: () => void }) {
+      const collectionPath = join(kfsPath, collection);
+      var files = recurFs.readdir.sync(collectionPath, function(resource: any, status: { isFile: () => void }) {
         return status.isFile();
       });
-      files = files.map((file: string) => relative(kfsPath, file));
+      files = files.map((file: string) => validizeKey(relative(kfsPath, file)));
       return (cache[collection] = files || []);
     } catch (err) {
       return [];
@@ -234,7 +180,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   }
 
   function queryAsync(collection: string): Promise<string[]> {
-    collection = join(kfsPath, validizeKey(collection));
+    collection = validizeKey(collection);
     if (collection in cache) return Promise.resolve(cache[collection]);
 
     return new Promise(function(resolve, reject) {
@@ -254,7 +200,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
         jobNumber = 1,
         terminated = false;
 
-      stat(collection, function(err, status) {
+      const collectionPath = join(kfsPath, collection);
+      stat(collectionPath, function(err, status) {
         if (err) {
           if (err.code === 'ENOENT') resolve((cache[collection] = []));
           else reject(err);
@@ -287,7 +234,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
                 reject(err);
               }
               if (status.isFile()) {
-                fileList.push(relative(kfsPath, filePath));
+                fileList.push(validizeKey(relative(kfsPath, filePath)));
               } else if (status.isDirectory()) {
                 jobNumber++;
                 processFolder(filePath);
@@ -305,10 +252,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   ///////////////////////////////////////////////////
 
   function validizeKey(key: string) {
-    key = String(key);
-    if (key.indexOf('/..') >= 0 || key.indexOf('../') >= 0 || key === '..') {
-      throw new Error('Invalid key name.');
-    }
+    key = String(key).replace(/\\/g, '/');
+    if (key.includes('/..') || key.includes('../') || key === '..') throw new Error('Invalid key name.');
     return key;
   }
 }

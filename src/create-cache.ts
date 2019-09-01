@@ -2,6 +2,10 @@ export interface KfsCache {
   [key: string]: any;
 }
 
+interface KfsCollectionCache {
+  [collection: string]: string[];
+}
+
 export default function createCache(cacheConfig?: number | boolean): KfsCache {
   if (cacheConfig === true || typeof cacheConfig === 'undefined') {
     // Unlimited cache by default
@@ -17,47 +21,64 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
   }
 
   function createCache_Unlimited(cacheConfig: true | undefined) {
-    return new Proxy(
+    let collectionCache: KfsCollectionCache = {};
+
+    return new Proxy<KfsCache>(
       {
         /*CACHE*/
       },
       {
         set: function(target, property, value, receiver) {
-          property in target || cleanUpCachedCollections(target, property);
-          (target as any)[property] = value;
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) {
+            collectionCache[propertyName] = value;
+            return true;
+          }
+          target[propertyName] = value;
+          Object.keys(collectionCache)
+            .filter(collection => keyInCollection(propertyName, collection))
+            .forEach(
+              collection =>
+                collectionCache[collection].includes(propertyName) || collectionCache[collection].push(propertyName),
+            );
           return true;
         },
 
         get: function(target, property, receiver) {
-          return (target as any)[property];
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) return collectionCache[propertyName];
+          return target[propertyName];
         },
 
         deleteProperty: function(target, property) {
-          if (property === '*') {
-            Object.keys(target).forEach(key => delete (target as any)[key]);
+          const propertyName = String(property);
+          if (propertyName === '*') {
+            collectionCache = {};
+            Object.keys(target).forEach(key => delete target[key]);
             return true;
           }
-          property in target && cleanUpCachedCollections(target, property);
-          return delete (target as any)[property];
+          if (propertyName.endsWith('/')) return delete collectionCache[propertyName];
+          Object.keys(collectionCache)
+            .filter(collection => keyInCollection(propertyName, collection))
+            .forEach(
+              collection =>
+                collectionCache[collection].includes(propertyName) &&
+                collectionCache[collection].splice(collectionCache[collection].indexOf(propertyName), 1),
+            );
+          return delete target[propertyName];
         },
 
         has: function(target, property) {
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) return propertyName in collectionCache;
           return property in target;
         },
       },
     );
-
-    function cleanUpCachedCollections(target: any, property: string | number | symbol) {
-      const path = String(property);
-      if (path.slice(-1) === '/') return;
-      const parts = path.split('/');
-      const collections = parts.map((part, index) => parts.slice(0, index).join('/') + '/');
-      collections.forEach(collection => delete target[collection]);
-    }
   }
 
   function createCache_NoCache(cacheConfig: false) {
-    return new Proxy(
+    return new Proxy<KfsCache>(
       {
         /*CACHE*/
       },
@@ -82,54 +103,64 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
   }
 
   function createCache_LimitedByKeyCount(cacheConfig: number) {
+    let collectionCache: KfsCollectionCache = {};
     let keyNumber = Math.ceil(cacheConfig),
       keys = Array(keyNumber),
       nextKeyIndex = 0,
       keyIndex: number;
 
-    return new Proxy(
+    return new Proxy<KfsCache>(
       {
         /*CACHE*/
       },
       {
         set: function(target, property, value, receiver) {
-          if (!keys.includes(property)) {
-            keys
-              .filter(key => key === '/' || (key.slice(-1) === '/' && String(property).indexOf(key) === 0))
-              .forEach(key => {
-                updateKeys(target, key, 'DELETE');
-                delete (target as any)[key];
-              });
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) {
+            collectionCache[propertyName] = value;
+            return true;
           }
-          updateKeys(target, property, 'SET');
-          (target as any)[property] = value;
+          updateKeys(target, propertyName, 'SET');
+          target[propertyName] = value;
+          Object.keys(collectionCache)
+            .filter(collection => keyInCollection(propertyName, collection))
+            .forEach(
+              collection =>
+                collectionCache[collection].includes(propertyName) || collectionCache[collection].push(propertyName),
+            );
           return true;
         },
 
         get: function(target, property, receiver) {
-          updateKeys(target, property, 'GET');
-          return (target as any)[property];
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) return collectionCache[propertyName];
+          updateKeys(target, propertyName, 'GET');
+          return target[propertyName];
         },
 
         deleteProperty: function(target, property) {
-          if (property === '*') {
+          const propertyName = String(property);
+          if (propertyName === '*') {
+            collectionCache = {};
             keys = Array(keyNumber);
             nextKeyIndex = 0;
             return true;
           }
-          if (keys.includes(property)) {
-            keys
-              .filter(key => key === '/' || (key.slice(-1) === '/' && String(property).indexOf(key) === 0))
-              .forEach(key => {
-                updateKeys(target, key, 'DELETE');
-                delete (target as any)[key];
-              });
-          }
-          updateKeys(target, property, 'DELETE');
-          return delete (target as any)[property];
+          if (propertyName.endsWith('/')) return delete collectionCache[propertyName];
+          Object.keys(collectionCache)
+            .filter(collection => keyInCollection(propertyName, collection))
+            .forEach(
+              collection =>
+                collectionCache[collection].includes(propertyName) &&
+                collectionCache[collection].splice(collectionCache[collection].indexOf(propertyName), 1),
+            );
+          updateKeys(target, propertyName, 'DELETE');
+          return delete target[propertyName];
         },
 
         has: function(target, property) {
+          const propertyName = String(property);
+          if (propertyName.endsWith('/')) return propertyName in collectionCache;
           return keys.indexOf(property) >= 0;
         },
       },
@@ -173,5 +204,15 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
         nextKeyIndex = realIndex(nextKeyIndex + 1);
       }
     }
+  }
+
+  function keyInCollection(key: string, collection: string): boolean {
+    collection = collection.startsWith('./')
+      ? collection.slice(1)
+      : collection.startsWith('/')
+      ? collection
+      : '/' + collection;
+    key = key.startsWith('./') ? key.slice(1) : key.startsWith('/') ? key : '/' + key;
+    return key.startsWith(collection);
   }
 }
