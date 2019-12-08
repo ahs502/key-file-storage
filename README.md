@@ -90,7 +90,7 @@ kfs('key', value)        // Write file
 kfs('key')               // Read file
 ```
 ```javascript
-new kfs('key')           // Delete file
+delete kfs('key')           // Delete file
 ```
 ```javascript
 new kfs('*')  /* or */
