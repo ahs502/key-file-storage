@@ -1,6 +1,6 @@
 import keyFileStorage from './index';
 
-const kfs = keyFileStorage('../../data');
+const kfs = keyFileStorage('../data');
 delete kfs['*'];
 
 console.log("(kfs.a = 'a')   >>  ", (kfs.a = 'a'));

@@ -62,7 +62,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     if (value === undefined) return deleteSync(key);
     key = validizeKey(key);
     var file = join(kfsPath, key);
-    outputJsonSync(file, value);
+    outputJsonSync(file, value, { spaces: 2 });
     return (cache[key] = value);
   }
 
@@ -110,7 +110,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     key = validizeKey(key);
     var file = join(kfsPath, key);
     return new Promise(function(resolve, reject) {
-      outputJson(file, value, function(err) {
+      outputJson(file, value, { spaces: 2 }, function(err) {
         if (err) return reject(err);
         resolve((cache[key] = value));
       });
