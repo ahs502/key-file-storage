@@ -212,7 +212,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
       function processFolder(folder: string) {
         if (terminated) return;
-        readdir(folder, function(err, files) {
+      const folderPath = join(kfsPath, folder);
+      readdir(folderPath, function(err, files) {
           if (terminated) return;
           jobNumber--;
           if (err) {
@@ -225,7 +226,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
           }
           files.forEach(function(file) {
             if (terminated) return;
-            var filePath = join(folder, file);
+            var filePath = join(folderPath, file);
             stat(filePath, function(err, status) {
               if (terminated) return;
               jobNumber--;
