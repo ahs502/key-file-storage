@@ -212,8 +212,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
       function processFolder(folder: string) {
         if (terminated) return;
-      const folderPath = join(kfsPath, folder);
-      readdir(folderPath, function(err, files) {
+        const folderPath = join(kfsPath, folder);
+        readdir(folderPath, function(err, files) {
           if (terminated) return;
           jobNumber--;
           if (err) {
