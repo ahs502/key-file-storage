@@ -2,8 +2,6 @@
 
 #### Simple key-value storage (a persistent data structure) directly on file system, maps each key to a separate file.
 
-A very nice replacement for any of these node modules: [node-persist](https://www.npmjs.com/package/node-persist), [configstore](https://www.npmjs.com/package/configstore), [flat-cache](https://www.npmjs.com/package/flat-cache), [conf](https://www.npmjs.com/package/conf), [simple-store](https://www.npmjs.com/package/simple-store) and more...
-
 + Simple *key-value* storage model
 + Very easy to learn and use
 + Both *Synchronous* and *Asynchronous* APIs
@@ -12,19 +10,19 @@ A very nice replacement for any of these node modules: [node-persist](https://ww
 + Both *Promise* and *Callback* support
 
 ```javascript
-const kfs = require("key-file-storage")('my/storage/path');
+const kfs = require("key-file-storage")('my/storage/path')
 
 // Write something to file 'my/storage/path/myfile'
-kfs.myfile = { x: 123 };
+kfs.myfile = { x: 123 }
 
 // Read contents of file 'my/storage/path/myfile'
-const x = kfs.myfile.x;
+const x = kfs.myfile.x
 
 // Delete file 'my/storage/path/myfile'
-delete kfs.myfile;
+delete kfs.myfile
 ```
 
-Just give it a try, you'll like it!
+A very nice alternative for any of these node modules: [node-persist](https://www.npmjs.com/package/node-persist), [configstore](https://www.npmjs.com/package/configstore), [flat-cache](https://www.npmjs.com/package/flat-cache), [conf](https://www.npmjs.com/package/conf), [simple-store](https://www.npmjs.com/package/simple-store) and more...
 
 ## Installation
 
@@ -37,9 +35,9 @@ $ npm install key-file-storage
 
 Initializing a key-file storage:
 ```javascript
-const keyFileStorage = require("key-file-storage");
+const keyFileStorage = require("key-file-storage")
 
-const kfs = keyFileStorage('/storage/directory/path', caching);
+const kfs = keyFileStorage('/storage/directory/path', caching)
 ```
 
 The value of `caching` can be
@@ -77,7 +75,7 @@ delete kfs['*']          // Delete all storage files
 
 - `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `kfs['key'] = undefined` or even `kfs['*'] = undefined` to delete files.
 
-- Synchronous API will throw an exception if any errors happens, so you shall handle it your way.
+- Synchronous API will throw an exception if any errors happen, so you shall handle it your way.
 
 ### Asynchronous API with Promises
 
@@ -146,7 +144,7 @@ You can query the list of all containing keys (*filenames*) within a collection 
 try {
     const keys = kfs['col/path/']
     // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
-} catch(error) {
+} catch (error) {
     // handle error...
 }
 ```
@@ -154,11 +152,13 @@ try {
 #### Asynchronous API with Promises
 
 ```javascript
-kfs('col/path/').then(keys => {
-    // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
-}, error => {
-    // handle error...
-});
+kfs('col/path/')
+    .then(keys => {
+        // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
+    })
+    .catch(error => {
+        // handle error...
+    })
 ```
 
 #### Asynchronous API with Callbacks
@@ -169,7 +169,7 @@ kfs('col/path/', (error, keys) => {
         // handle error...
     }
     // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
-});
+})
 ```
 
 ## Notes
@@ -187,41 +187,41 @@ kfs('col/path/', (error, keys) => {
 ## Example
 
 ```javascript
-const keyFileStorage = require("key-file-storage");
+const keyFileStorage = require("key-file-storage")
 
 // Locate 'db' folder in the current directory as the storage path,
 // Require 100 latest accessed key-values to be cached:
-const kfs = keyFileStorage('./db', 100);
+const kfs = keyFileStorage('./db', 100)
 
 // Create file './db/users/hessam' containing this user data, synchronously: 
-kfs['users/hessam'] = {
+kfs['users/hessam'] = ({
     name: "Hessam",
     skills: {
         java: 10,
         csharp: 15
     }
-};
+})
 
 // Read file './db/users/hessam' as a JSON object, asynchronously:
 kfs('users/hessam').then(hessam => {
-    console.log(`Hessam's java skill is ${hessam.skills.java}.`);
-});
+    console.log(`Hessam's java skill is ${hessam.skills.java}.`)
+})
 
 // Check whether file './db/users/mahdiar' exists or not, asynchronously:
 'users/mahdiar' in kfs((error, exists) => {
     if (exists) {
-        console.log("User Mahdiar exists!");
+        console.log("User Mahdiar exists!")
     }
-});
+})
 
 // List all the keys in './db/users/', synchronously:
-const allUsers = kfs['users/'];
+const allUsers = kfs['users/']
 //=> ['users/hessam', 'users/mahdiar', ... ]
 ```
 
 ## Contribute
 
-It would be appreciated if you had any suggestions or contribution on this repository or submitted any issue.
+It would be very appreciated if you had any suggestions or contribution on this repository or submitted any issue.
 
 + See the code on [GitHub](https://github.com/ahs502/key-file-storage)
 + Contact me by [my gmail address](ahs502@gmail.com) *(Hessamoddin A Shokravi)*
