@@ -28,7 +28,7 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
         /*CACHE*/
       },
       {
-        set: function(target, property, value, receiver) {
+        set: function (target, property, value, receiver) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) {
             collectionCache[propertyName] = value;
@@ -36,39 +36,39 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
           }
           target[propertyName] = value;
           Object.keys(collectionCache)
-            .filter(collection => keyInCollection(propertyName, collection))
+            .filter((collection) => keyInCollection(propertyName, collection))
             .forEach(
-              collection =>
+              (collection) =>
                 collectionCache[collection].includes(propertyName) || collectionCache[collection].push(propertyName),
             );
           return true;
         },
 
-        get: function(target, property, receiver) {
+        get: function (target, property, receiver) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) return collectionCache[propertyName];
           return target[propertyName];
         },
 
-        deleteProperty: function(target, property) {
+        deleteProperty: function (target, property) {
           const propertyName = String(property);
           if (propertyName === '*') {
             collectionCache = {};
-            Object.keys(target).forEach(key => delete target[key]);
+            Object.keys(target).forEach((key) => delete target[key]);
             return true;
           }
           if (propertyName.endsWith('/')) return delete collectionCache[propertyName];
           Object.keys(collectionCache)
-            .filter(collection => keyInCollection(propertyName, collection))
+            .filter((collection) => keyInCollection(propertyName, collection))
             .forEach(
-              collection =>
+              (collection) =>
                 collectionCache[collection].includes(propertyName) &&
                 collectionCache[collection].splice(collectionCache[collection].indexOf(propertyName), 1),
             );
           return delete target[propertyName];
         },
 
-        has: function(target, property) {
+        has: function (target, property) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) return propertyName in collectionCache;
           return property in target;
@@ -83,19 +83,19 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
         /*CACHE*/
       },
       {
-        set: function(target, property, value, receiver) {
+        set: function (target, property, value, receiver) {
           return true;
         },
 
-        get: function(target, property, receiver) {
+        get: function (target, property, receiver) {
           return undefined;
         },
 
-        deleteProperty: function(target, property) {
+        deleteProperty: function (target, property) {
           return true;
         },
 
-        has: function(target, property) {
+        has: function (target, property) {
           return false;
         },
       },
@@ -114,7 +114,7 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
         /*CACHE*/
       },
       {
-        set: function(target, property, value, receiver) {
+        set: function (target, property, value, receiver) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) {
             collectionCache[propertyName] = value;
@@ -123,22 +123,22 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
           updateKeys(target, propertyName, 'SET');
           target[propertyName] = value;
           Object.keys(collectionCache)
-            .filter(collection => keyInCollection(propertyName, collection))
+            .filter((collection) => keyInCollection(propertyName, collection))
             .forEach(
-              collection =>
+              (collection) =>
                 collectionCache[collection].includes(propertyName) || collectionCache[collection].push(propertyName),
             );
           return true;
         },
 
-        get: function(target, property, receiver) {
+        get: function (target, property, receiver) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) return collectionCache[propertyName];
           updateKeys(target, propertyName, 'GET');
           return target[propertyName];
         },
 
-        deleteProperty: function(target, property) {
+        deleteProperty: function (target, property) {
           const propertyName = String(property);
           if (propertyName === '*') {
             collectionCache = {};
@@ -148,9 +148,9 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
           }
           if (propertyName.endsWith('/')) return delete collectionCache[propertyName];
           Object.keys(collectionCache)
-            .filter(collection => keyInCollection(propertyName, collection))
+            .filter((collection) => keyInCollection(propertyName, collection))
             .forEach(
-              collection =>
+              (collection) =>
                 collectionCache[collection].includes(propertyName) &&
                 collectionCache[collection].splice(collectionCache[collection].indexOf(propertyName), 1),
             );
@@ -158,7 +158,7 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
           return delete target[propertyName];
         },
 
-        has: function(target, property) {
+        has: function (target, property) {
           const propertyName = String(property);
           if (propertyName.endsWith('/')) return propertyName in collectionCache;
           return keys.indexOf(property) >= 0;

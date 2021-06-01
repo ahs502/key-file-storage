@@ -20,14 +20,13 @@ export interface KeyFileBasic {
   deleteSync(key: string): boolean;
   clearSync(): boolean;
   hasSync(key: string): boolean;
+  querySync(collection: string): string[];
 
   setAsync(key: string, value: any): Promise<any>;
   getAsync(key: string): Promise<any>;
   deleteAsync(key: string): Promise<boolean>;
   clearAsync(): Promise<boolean>;
   hasAsync(key: string): Promise<boolean>;
-
-  querySync(collection: string): string[];
   queryAsync(collection: string): Promise<string[]>;
 }
 
@@ -45,6 +44,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     deleteSync,
     clearSync,
     hasSync,
+    querySync,
 
     // Asynchronous
     setAsync,
@@ -52,9 +52,6 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     deleteAsync,
     clearAsync,
     hasAsync,
-
-    // Iterate
-    querySync,
     queryAsync,
   };
 
@@ -105,12 +102,27 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     return true;
   }
 
+  function querySync(collection: string) {
+    collection = validizeKey(collection);
+    if (collection in cache) return cache[collection];
+    try {
+      const collectionPath = join(kfsPath, collection);
+      var files = recurFs.readdir.sync(collectionPath, function (resource: any, status: { isFile: () => void }) {
+        return status.isFile();
+      });
+      files = files.map((file: string) => validizeKey(relative(kfsPath, file)));
+      return (cache[collection] = files || []);
+    } catch (err) {
+      return [];
+    }
+  }
+
   function setAsync(key: string, value: any) {
     if (value === undefined) return deleteAsync(key);
     key = validizeKey(key);
     var file = join(kfsPath, key);
-    return new Promise(function(resolve, reject) {
-      outputJson(file, value, { spaces: 2 }, function(err) {
+    return new Promise(function (resolve, reject) {
+      outputJson(file, value, { spaces: 2 }, function (err) {
         if (err) return reject(err);
         resolve((cache[key] = value));
       });
@@ -121,10 +133,10 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     key = validizeKey(key);
     if (key in cache) return Promise.resolve(cache[key]);
     var file = join(kfsPath, key);
-    return new Promise(function(resolve, reject) {
-      stat(file, function(err, status) {
+    return new Promise(function (resolve, reject) {
+      stat(file, function (err, status) {
         if (err || !status || !status.isFile()) return resolve((cache[key] = null));
-        readJson(file, function(err, value) {
+        readJson(file, function (err, value) {
           if (err) return reject(err);
           resolve((cache[key] = value));
         });
@@ -136,8 +148,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     key = validizeKey(key);
     if (key === '*') return clearAsync();
     var file = join(kfsPath, key);
-    return new Promise(function(resolve, reject) {
-      remove(file, function(err) {
+    return new Promise(function (resolve, reject) {
+      remove(file, function (err) {
         if (err) return reject(err);
         resolve(delete cache[key]);
       });
@@ -145,8 +157,8 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   }
 
   function clearAsync(): Promise<boolean> {
-    return new Promise(function(resolve, reject) {
-      remove(kfsPath, function(err) {
+    return new Promise(function (resolve, reject) {
+      remove(kfsPath, function (err) {
         if (err) return reject(err);
         resolve(delete cache['*']);
       });
@@ -157,33 +169,18 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     key = validizeKey(key);
     if (key in cache) return Promise.resolve(true);
     var file = join(kfsPath, key);
-    return new Promise(function(resolve, reject) {
-      stat(file, function(err, status) {
+    return new Promise(function (resolve, reject) {
+      stat(file, function (err, status) {
         resolve(!!(!err && status && status.isFile()));
       });
     });
-  }
-
-  function querySync(collection: string) {
-    collection = validizeKey(collection);
-    if (collection in cache) return cache[collection];
-    try {
-      const collectionPath = join(kfsPath, collection);
-      var files = recurFs.readdir.sync(collectionPath, function(resource: any, status: { isFile: () => void }) {
-        return status.isFile();
-      });
-      files = files.map((file: string) => validizeKey(relative(kfsPath, file)));
-      return (cache[collection] = files || []);
-    } catch (err) {
-      return [];
-    }
   }
 
   function queryAsync(collection: string): Promise<string[]> {
     collection = validizeKey(collection);
     if (collection in cache) return Promise.resolve(cache[collection]);
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       //// This implementation does not work with empty folders:
       // recurFs.readdir(collection, function(resource, status, next) {
       //     next(status.isFile());
@@ -201,7 +198,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
         terminated = false;
 
       const collectionPath = join(kfsPath, collection);
-      stat(collectionPath, function(err, status) {
+      stat(collectionPath, function (err, status) {
         if (err) {
           if (err.code === 'ENOENT') resolve((cache[collection] = []));
           else reject(err);
@@ -213,7 +210,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
       function processFolder(folder: string) {
         if (terminated) return;
         const folderPath = join(kfsPath, folder);
-        readdir(folderPath, function(err, files) {
+        readdir(folderPath, function (err, files) {
           if (terminated) return;
           jobNumber--;
           if (err) {
@@ -224,10 +221,10 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
           if (!jobNumber) {
             resolve((cache[collection] = fileList));
           }
-          files.forEach(function(file) {
+          files.forEach(function (file) {
             if (terminated) return;
             var filePath = join(folderPath, file);
-            stat(filePath, function(err, status) {
+            stat(filePath, function (err, status) {
               if (terminated) return;
               jobNumber--;
               if (err) {

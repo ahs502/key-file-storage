@@ -20,7 +20,7 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }):
 
   /* async has */
   var hasAsyncWrap = {
-    has: function(target: any, property: string) {
+    has: function (target: any, property: string) {
       var promise = kfb.hasAsync(property);
       if (hasAsyncHandler) {
         callbackizePromise(promise, hasAsyncHandler);
@@ -33,7 +33,7 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }):
   };
 
   var kfs = new Proxy(
-    function() {
+    function () {
       var a1 = arguments[0],
         a2 = arguments[1],
         a3 = arguments[2];
@@ -95,12 +95,12 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }):
     },
     {
       /* sync set */
-      set: function(target, property, value, receiver) {
+      set: function (target, property, value, receiver) {
         kfb.setSync(String(property), value);
         return true;
       },
 
-      get: function(target, property, receiver) {
+      get: function (target, property, receiver) {
         if (String(property).slice(-1) === '/') {
           /* sync query */
           return kfb.querySync(String(property));
@@ -111,17 +111,17 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }):
       },
 
       /* sync delete */
-      deleteProperty: function(target, property) {
+      deleteProperty: function (target, property) {
         return kfb.deleteSync(String(property));
       },
 
       /* sync has */
-      has: function(target, property) {
+      has: function (target, property) {
         return kfb.hasSync(String(property));
       },
 
       /* async delete */
-      construct: function(target, argumentsList, newTarget) {
+      construct: function (target, argumentsList, newTarget) {
         var a1 = argumentsList[0],
           a2 = argumentsList[1];
 
@@ -152,7 +152,7 @@ export default function createKfs(kfsPath: string, cache: { [x: string]: any }):
 
   function callbackizePromise(promise: Promise<unknown>, callback: any) {
     if (typeof callback === 'function') {
-      return promise.then(function(data) {
+      return promise.then(function (data) {
         return callback(undefined, data);
       }, callback);
     } else {
