@@ -1,12 +1,12 @@
-export interface KfsCache {
+export interface Cache {
   [key: string]: any;
 }
 
-interface KfsCollectionCache {
+interface CollectionCache {
   [collection: string]: string[];
 }
 
-export default function createCache(cacheConfig?: number | boolean): KfsCache {
+export default function createCache(cacheConfig?: number | boolean): Cache {
   if (cacheConfig === true || typeof cacheConfig === 'undefined') {
     // Unlimited cache by default
     return createCache_Unlimited(cacheConfig);
@@ -21,9 +21,9 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
   }
 
   function createCache_Unlimited(cacheConfig: true | undefined) {
-    let collectionCache: KfsCollectionCache = {};
+    let collectionCache: CollectionCache = {};
 
-    return new Proxy<KfsCache>(
+    return new Proxy<Cache>(
       {
         /*CACHE*/
       },
@@ -78,7 +78,7 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
   }
 
   function createCache_NoCache(cacheConfig: false) {
-    return new Proxy<KfsCache>(
+    return new Proxy<Cache>(
       {
         /*CACHE*/
       },
@@ -103,13 +103,13 @@ export default function createCache(cacheConfig?: number | boolean): KfsCache {
   }
 
   function createCache_LimitedByKeyCount(cacheConfig: number) {
-    let collectionCache: KfsCollectionCache = {};
+    let collectionCache: CollectionCache = {};
     let keyNumber = Math.ceil(cacheConfig),
       keys = Array(keyNumber),
       nextKeyIndex = 0,
       keyIndex: number;
 
-    return new Proxy<KfsCache>(
+    return new Proxy<Cache>(
       {
         /*CACHE*/
       },

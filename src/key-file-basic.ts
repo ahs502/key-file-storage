@@ -1,13 +1,13 @@
 import {
-  outputJsonSync,
-  statSync,
-  readJsonSync,
-  removeSync,
   outputJson,
-  stat,
+  outputJsonSync,
   readJson,
-  remove,
+  readJsonSync,
   readdir,
+  remove,
+  removeSync,
+  stat,
+  statSync,
 } from 'fs-extra';
 import { join, relative } from 'path';
 
@@ -30,10 +30,10 @@ export interface KeyFileBasic {
   queryAsync(collection: string): Promise<string[]>;
 }
 
-export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any }): KeyFileBasic {
-  kfsPath = kfsPath || __dirname; // Current working folder by default.
-  kfsPath = String(kfsPath);
-  if (!isValidPath(kfsPath)) {
+export default function keyFileBasic(storagePath: string, cache: { [x: string]: any }): KeyFileBasic {
+  storagePath = storagePath || __dirname; // Current working folder by default.
+  storagePath = String(storagePath);
+  if (!isValidPath(storagePath)) {
     throw new Error('Invalid stroage path.');
   }
 
@@ -58,7 +58,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function setSync(key: string, value: any) {
     if (value === undefined) return deleteSync(key);
     key = validizeKey(key);
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     outputJsonSync(file, value, { spaces: 2 });
     return (cache[key] = value);
   }
@@ -66,7 +66,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function getSync(key: string) {
     key = validizeKey(key);
     if (key in cache) return cache[key];
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     try {
       var status = statSync(file);
       if (!status || !status.isFile()) return (cache[key] = null);
@@ -79,20 +79,20 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function deleteSync(key: string) {
     key = validizeKey(key);
     if (key === '*') return clearSync();
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     removeSync(file);
     return delete cache[key];
   }
 
   function clearSync() {
-    removeSync(kfsPath);
+    removeSync(storagePath);
     return delete cache['*'];
   }
 
   function hasSync(key: string) {
     key = validizeKey(key);
     if (key in cache) return true;
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     try {
       var status = statSync(file);
       if (!status || !status.isFile()) return false;
@@ -106,11 +106,11 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
     collection = validizeKey(collection);
     if (collection in cache) return cache[collection];
     try {
-      const collectionPath = join(kfsPath, collection);
+      const collectionPath = join(storagePath, collection);
       var files = recurFs.readdir.sync(collectionPath, function (resource: any, status: { isFile: () => void }) {
         return status.isFile();
       });
-      files = files.map((file: string) => validizeKey(relative(kfsPath, file)));
+      files = files.map((file: string) => validizeKey(relative(storagePath, file)));
       return (cache[collection] = files || []);
     } catch (err) {
       return [];
@@ -120,7 +120,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function setAsync(key: string, value: any) {
     if (value === undefined) return deleteAsync(key);
     key = validizeKey(key);
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     return new Promise(function (resolve, reject) {
       outputJson(file, value, { spaces: 2 }, function (err) {
         if (err) return reject(err);
@@ -132,7 +132,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function getAsync(key: string) {
     key = validizeKey(key);
     if (key in cache) return Promise.resolve(cache[key]);
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     return new Promise(function (resolve, reject) {
       stat(file, function (err, status) {
         if (err || !status || !status.isFile()) return resolve((cache[key] = null));
@@ -147,7 +147,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function deleteAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
     if (key === '*') return clearAsync();
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     return new Promise(function (resolve, reject) {
       remove(file, function (err) {
         if (err) return reject(err);
@@ -158,7 +158,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
   function clearAsync(): Promise<boolean> {
     return new Promise(function (resolve, reject) {
-      remove(kfsPath, function (err) {
+      remove(storagePath, function (err) {
         if (err) return reject(err);
         resolve(delete cache['*']);
       });
@@ -168,7 +168,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
   function hasAsync(key: string): Promise<boolean> {
     key = validizeKey(key);
     if (key in cache) return Promise.resolve(true);
-    var file = join(kfsPath, key);
+    var file = join(storagePath, key);
     return new Promise(function (resolve, reject) {
       stat(file, function (err, status) {
         resolve(!!(!err && status && status.isFile()));
@@ -189,7 +189,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
       //         reject(err);
       //     }
       //     else {
-      //         resolve(resources.map(file => path.relative(kfsPath, file)));
+      //         resolve(resources.map(file => path.relative(storagePath, file)));
       //     }
       // });
 
@@ -197,7 +197,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
         jobNumber = 1,
         terminated = false;
 
-      const collectionPath = join(kfsPath, collection);
+      const collectionPath = join(storagePath, collection);
       stat(collectionPath, function (err, status) {
         if (err) {
           if (err.code === 'ENOENT') resolve((cache[collection] = []));
@@ -209,7 +209,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
 
       function processFolder(folder: string) {
         if (terminated) return;
-        const folderPath = join(kfsPath, folder);
+        const folderPath = join(storagePath, folder);
         readdir(folderPath, function (err, files) {
           if (terminated) return;
           jobNumber--;
@@ -232,7 +232,7 @@ export default function keyFileBasic(kfsPath: string, cache: { [x: string]: any 
                 reject(err);
               }
               if (status.isFile()) {
-                fileList.push(validizeKey(relative(kfsPath, filePath)));
+                fileList.push(validizeKey(relative(storagePath, filePath)));
               } else if (status.isDirectory()) {
                 jobNumber++;
                 processFolder(filePath);

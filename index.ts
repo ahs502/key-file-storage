@@ -1,8 +1,8 @@
 import createCache from './src/create-cache';
-import createKfs, { KeyFileStorage } from './src/key-file-storage';
+import createStore, { KeyFileStorage } from './src/key-file-storage';
 
 /**
- * Returns an instance of `key-file-storage` to access the file system.
+ * Returns an instance of `key-file-storage` store to access the file system.
  * @param path The root storage path on the file system:
  * * For example `'./the/path/to/data'`
  * @param caching The selected cache configuration:
@@ -10,8 +10,11 @@ import createKfs, { KeyFileStorage } from './src/key-file-storage';
  * * `false` to disable caching,
  * * `n: number` to cache the latest **n** accessed keys.
  */
-export default function keyFileStorage<P = any>(path: string, caching?: number | boolean): KeyFileStorage<P> {
+function keyFileStorage<P = any>(path: string, caching?: number | boolean): KeyFileStorage<P> {
   var cache = createCache(caching);
-  var kfs = createKfs<P>(path, cache);
-  return kfs;
+  var store = createStore<P>(path, cache);
+  return store;
 }
+
+export default keyFileStorage;
+export { keyFileStorage };

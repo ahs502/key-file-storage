@@ -11,8 +11,8 @@ export interface KeyFileStorage<P> {
   <U = boolean>(callback?: (error: any) => U): Promise<U>;
 }
 
-export default function createKfs<P>(kfsPath: string, cache: { [x: string]: P }): KeyFileStorage<P> {
-  var kfb = keyFileBasic(kfsPath, cache);
+export default function createStore<P>(storagePath: string, cache: { [x: string]: P }): KeyFileStorage<P> {
+  var kfb = keyFileBasic(storagePath, cache);
 
   // The produced promise and callback function related to the latest async 'in' operator
   var hasAsyncHandler: any = null,
@@ -32,7 +32,7 @@ export default function createKfs<P>(kfsPath: string, cache: { [x: string]: P })
     },
   };
 
-  var kfs = new Proxy(
+  var store = new Proxy(
     function () {
       var a1 = arguments[0],
         a2 = arguments[1],
@@ -148,7 +148,7 @@ export default function createKfs<P>(kfsPath: string, cache: { [x: string]: P })
     },
   );
 
-  return kfs as any;
+  return store as any;
 
   function callbackizePromise(promise: Promise<unknown>, callback: any) {
     if (typeof callback === 'function') {

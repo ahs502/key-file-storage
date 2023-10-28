@@ -10,16 +10,16 @@
 + Both *Promise* and *Callback* support
 
 ```ts
-const kfs = require("key-file-storage")('my/storage/path')
+const store = require("key-file-storage")('my/storage/path')
 
 // Write something to file 'my/storage/path/myfile'
-kfs.myfile = { x: 123 }
+store.myfile = { x: 123 }
 
 // Read contents of file 'my/storage/path/myfile'
-const x = kfs.myfile.x
+const x = store.myfile.x
 
 // Delete file 'my/storage/path/myfile'
-delete kfs.myfile
+delete store.myfile
 ```
 
 A nice alternative for any of these libraries: [node-persist](https://www.npmjs.com/package/node-persist), [configstore](https://www.npmjs.com/package/configstore), [flat-cache](https://www.npmjs.com/package/flat-cache), [conf](https://www.npmjs.com/package/conf), [simple-store](https://www.npmjs.com/package/simple-store), and more...
