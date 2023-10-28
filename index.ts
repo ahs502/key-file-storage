@@ -10,8 +10,8 @@ import createKfs, { KeyFileStorage } from './src/key-file-storage';
  * * `false` to disable caching,
  * * `n: number` to cache the latest **n** accessed keys.
  */
-export default function keyFileStorage(path: string, caching?: number | boolean): KeyFileStorage {
+export default function keyFileStorage<P = any>(path: string, caching?: number | boolean): KeyFileStorage<P> {
   var cache = createCache(caching);
-  var kfs = createKfs(path, cache);
+  var kfs = createKfs<P>(path, cache);
   return kfs;
 }

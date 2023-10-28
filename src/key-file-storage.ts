@@ -1,8 +1,8 @@
 import keyFileBasic from './key-file-basic';
 
-export interface KeyFileStorage {
-  [key: string]: any;
-  [index: number]: any;
+export interface KeyFileStorage<P> {
+  [key: string]: P;
+  [index: number]: P;
 
   <T, U = T>(key: string | number, value: T, callback?: (error: any) => U): Promise<U>;
   <T = any, U = T>(key: string | number, callback?: (error: any, value?: T) => U): Promise<U>;
@@ -11,7 +11,7 @@ export interface KeyFileStorage {
   <U = boolean>(callback?: (error: any) => U): Promise<U>;
 }
 
-export default function createKfs(kfsPath: string, cache: { [x: string]: any }): KeyFileStorage {
+export default function createKfs<P>(kfsPath: string, cache: { [x: string]: P }): KeyFileStorage<P> {
   var kfb = keyFileBasic(kfsPath, cache);
 
   // The produced promise and callback function related to the latest async 'in' operator
