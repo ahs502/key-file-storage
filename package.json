@@ -1,6 +1,6 @@
 {
   "name": "key-file-storage",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Simple key-value storage directly on file system, maps each key to a separate file.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
