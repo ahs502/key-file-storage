@@ -188,21 +188,14 @@ store('col/path/', (error, keys) => {
 
 - **NOTE 5 :** When activated, caching will include queries on *collections* too.
 
-- **NOTE 6 :** For _TypeScript_ developers, you may indicate the store's value type when creating it: `const store = kfs<DataType>(...)`.
-
 ## Example
 
 ```ts
 import kfs from "key-file-storage"
 
-interface User {
-    readonly name: string
-    readonly skills: Readonly<Partial<Record<string, number>>>
-}
-
 // Locate 'db' folder in the current directory as the storage path,
 // Require 100 latest accessed key-values to be cached:
-const store = kfs<User>('./db', 100)
+const store = kfs('./db', 100)
 
 // Create file './db/users/hessam' containing this user data, synchronously: 
 store['users/hessam'] = ({

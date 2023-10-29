@@ -10,9 +10,9 @@ import createStore, { KeyFileStorage } from './src/key-file-storage';
  * * `false` to disable caching,
  * * `n: number` to cache the latest **n** accessed keys.
  */
-function keyFileStorage<P = any>(path: string, caching?: number | boolean): KeyFileStorage<P> {
+function keyFileStorage(path: string, caching?: number | boolean): KeyFileStorage {
   var cache = createCache(caching);
-  var store = createStore<P>(path, cache);
+  var store = createStore(path, cache);
   return store;
 }
 
