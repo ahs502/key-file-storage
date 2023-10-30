@@ -59,20 +59,20 @@ The value of `caching` can be
 As simple as native javascript objects:
 
 ```ts
-store['key'] = value       // Write file
+store['key'] = value       // Writes file
 ```
 ```ts
-store['key']               // Read file
+store['key']               // Reads file
 ```
 ```ts
-delete store['key']        // Delete file
+delete store['key']        // Deletes file
 ```
 ```ts
-delete store['*']          // Delete all storage files
+delete store['*']          // Deletes all storage files
 ```
 ```ts
-'key' in store             // Check for file existence
-                         //=> true or false
+'key' in store             // Checks for file existence
+                           //=> true or false
 ```
 
 - You can use `store.keyName` instead of `store['keyName']` anywhere if the key name allows.
@@ -86,22 +86,23 @@ delete store['*']          // Delete all storage files
 Every one of the following calls **returns a promise**:
 
 ```ts
-store('key', value)        // Write file
+store('key', value)          // Writes file
 ```
 ```ts
-store('key')               // Read file
+store('key')                 // Reads file
 ```
+
 ```ts
-new store('key')           // Delete file
+new store('key')             // Resets/deletes file
 ```
 ```ts
 new store('*')  /* or */
 new store()     /* or */
-new store                  // Delete all storage files
+new store                    // Deletes all storage files
 ```
 ```ts
-('key' in store(), store())  // Check for file existence
-                         // Resolves to true or false
+('key' in store(), store())  // Checks for file existence
+                             // Resolves to true or false
 ```
 
 - Once again, `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `store('key', undefined)` or even `store('*', undefined)` to delete files.
@@ -111,25 +112,25 @@ new store                  // Delete all storage files
 The same as asynchronous with promises, but with callback function as the last input parameter of `store()` :
 
 ```ts
-store('key', value, cb)   // Write file
+store('key', value, cb)   // Writes file
 ```
 ```ts
-store('key', cb)          // Read file
+store('key', cb)          // Reads file
 ```
 ```ts
-new store('key', cb)      // Delete file
+new store('key', cb)      // Resets/Deletes file
 ```
 ```ts
 new store('*', cb)   /* or */
-new store(cb)             // Delete all storage files
+new store(cb)             // Deletes all storage files
 ```
 ```ts
-'key' in store(cb)        // Check for file existence
-                        // without promise output
+'key' in store(cb)        // Checks for file existence
+                          // without promise output
                    /* or */
 ('key' in store(), store(cb))
-                        // Check for file existence
-                        // with promise output
+                          // Checks for file existence
+                          // with promise output
 ```
 
 - These calls *still* return a promise on their output (except for `'key' in store(callback)` form of existence check).
@@ -149,7 +150,7 @@ try {
     const keys = store['col/path/']
     // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
 } catch (error) {
-    // handle error...
+    // Handle error...
 }
 ```
 
@@ -161,7 +162,7 @@ store('col/path/')
         // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
     })
     .catch(error => {
-        // handle error...
+        // Handle error...
     })
 ```
 
@@ -170,7 +171,7 @@ store('col/path/')
 ```ts
 store('col/path/', (error, keys) => {
     if (error) {
-        // handle error...
+        // Handle error...
     }
     // keys = ['col/path/key1', 'col/path/sub/key2', ... ]
 })
