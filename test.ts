@@ -1,28 +1,38 @@
-import keyFileStorage from './index';
+import kfs from './index';
 
-const kfs = keyFileStorage('data');
-delete kfs['*'];
-
-console.log("(kfs.a = 'a')   >>  ", (kfs.a = 'a'));
-console.log('kfs.a, kfs.b    >>  ', kfs.a, kfs.b);
-console.log("kfs['/']        >>  ", kfs['/']);
-console.log("kfs['/']        >>  ", kfs['/']);
-console.log("(kfs.b = 'b')   >>  ", (kfs.b = 'b'));
-console.log("kfs['/']        >>  ", kfs['/']);
-console.log("kfs['/']        >>  ", kfs['/']);
-console.log('delete kfs.a    >>  ', delete kfs.a);
-console.log("kfs['/']        >>  ", kfs['/']);
-console.log("kfs['/']        >>  ", kfs['/']);
+const store = kfs('../data');
+delete store['*'];
 
 console.log('..............................................');
 
-console.log(kfs['a/b/c/']);
-console.log((kfs['a/b/c/x'] = 0));
-console.log(kfs['a/b/c/']);
-console.log((kfs['a/b/c/y'] = 0));
-console.log((kfs['a/b/c/z'] = 0));
-console.log(kfs['a/b/c/']);
-console.log(kfs['a/b/c/']);
-console.log(delete kfs['a/b/c/y']);
-console.log(kfs['a/b/c/']);
-console.log(kfs['a/b/c/']);
+console.log("(store.a = 'a')   >>  ", (store.a = 'a'));
+console.log('store.a, store.b    >>  ', store.a, store.b);
+console.log("store['/']        >>  ", store['/']);
+console.log("store['/']        >>  ", store['/']);
+console.log("(store.b = 'b')   >>  ", (store.b = 'b'));
+console.log("store['/']        >>  ", store['/']);
+console.log("store['/']        >>  ", store['/']);
+console.log('delete store.a    >>  ', delete store.a);
+console.log("store['/']        >>  ", store['/']);
+console.log("store['/']        >>  ", store['/']);
+
+console.log('..............................................');
+
+console.log(store['a/b/c/']);
+console.log((store['a/b/c/x'] = 0));
+console.log(store['a/b/c/']);
+console.log((store['a/b/c/y'] = 0));
+console.log((store['a/b/c/z'] = 0));
+console.log(store['a/b/c/']);
+console.log(store['a/b/c/']);
+console.log(delete store['a/b/c/y']);
+console.log(store['a/b/c/']);
+console.log(store['a/b/c/']);
+
+console.log('..............................................');
+
+Promise.resolve()
+  .then((x) => store('qq/qqq', { data: 123 }))
+  .then((x) => store('qq/www', { data: 456 }))
+  .then((x) => store('qq/'))
+  .then((x) => console.log(x));
