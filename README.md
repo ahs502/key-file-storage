@@ -77,7 +77,7 @@ delete store['*']          // Deletes all storage files
 
 - You can use `store.keyName` instead of `store['keyName']` anywhere if the key name allows.
 
-- `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `store['key'] = undefined` or even `store['*'] = undefined` to delete files.
+- `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to removing it. So, you can use `store['key'] = undefined` or even `store['*'] = undefined` to delete files.
 
 - Synchronous API will throw an exception if any errors happen, so you shall handle it your way.
 
@@ -105,7 +105,7 @@ new store                    // Deletes all storage files
                              // Resolves to true or false
 ```
 
-- Once again, `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to remove it. So, you can use `store('key', undefined)` or even `store('*', undefined)` to delete files.
+- Once again, `undefined` is not supported as a savable value, but `null` is. Saving a key with value `undefined` is equivalent to removing it. So, you can use `store('key', undefined)` or even `store('*', undefined)` to delete files.
 
 ### Asynchronous API with Callbacks
 
@@ -179,7 +179,7 @@ store('col/path/', (error, keys) => {
 
 ## Notes
 
-- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*). Therefore, keys may be relative paths, e.g: `'data.json'`, `'/my/key/01'` or `'any/other/relative/path/to/a/file'`. The only exception is strings including `'..'` (*double dot*) which will not be accepted for security reasons.
+- **NOTE 1 :** Each key will map to a separate file (*using the key itself as its relative path*). Therefore, keys may be relative paths, e.g: `'data.json'`, `'/my/key/01'` or `'any/other/relative/path/to/a/file'`. The only exceptions are the strings including `'..'` (*double dot*) which will not be accepted for security reasons.
 
 - **NOTE 2 :** You may have hidden key files by simply add a `'.'` before the filename in the key path.
 
